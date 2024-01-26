@@ -1,7 +1,7 @@
-import Pagination from '@/app/ui/customers/pagination';
+import Pagination from '@/app/ui/orders/pagination';
 import Search from '@/app/ui/search';
-import Table from '@/app/ui/customers/table';
-import { CreateCustomer } from '@/app/ui/customers/buttons';
+import Table from '@/app/ui/orders/table';
+import { CreateInvoice } from '@/app/ui/orders/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
@@ -20,12 +20,12 @@ export default async function Page({
     const totalPages=await fetchInvoicesPages(query);
   return (
     <div className="w-full">
-      <div className="flex w-full items-center justify-between">
+      {/* <div className="flex w-full items-center justify-between">
         <h1 className={`${lusitana.className} text-2xl`}>会员管理</h1>
-      </div>
+      </div> */}
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-        <Search placeholder="搜索会员..." />
-        <CreateCustomer />
+        <Search placeholder="搜索..." />
+        {/* <CreateInvoice /> */}
       </div>
        <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
         <Table query={query} currentPage={currentPage} />

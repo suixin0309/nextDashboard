@@ -1,10 +1,10 @@
 import Image from 'next/image';
 import { UpdateCustomer, DeleteInvoice } from '@/app/ui/customers/buttons';
-import InvoiceStatus from '@/app/ui/customers/status';
+import InvoiceStatus from '@/app/ui/orders/status';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { fetchFilteredInvoices } from '@/app/lib/data';
-import Link from 'next/link';
-export default async function CustomersTable({
+
+export default async function OrdersTable({
   query,
   currentPage,
 }: {
@@ -64,17 +64,23 @@ export default async function CustomersTable({
                   联系方式
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  时间
+                  消费类型
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  消费项目
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  金额/次数
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  消费时间
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   记录人
                 </th>
-                <th scope="col" className="px-3 py-5 font-medium">
-                  消费操作
-                </th>
-                <th scope="col" className="relative py-3 pl-6 pr-3">
+                {/* <th scope="col" className="relative py-3 pl-6 pr-3">
                   <span className="">操作</span>
-                </th>
+                </th> */}
               </tr>
             </thead>
             <tbody className="bg-white">
@@ -99,28 +105,27 @@ export default async function CustomersTable({
                     {invoice.email}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {formatDateToLocal(invoice.date)}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-3">
                     张三
                     {/* <InvoiceStatus status={invoice.status} /> */}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {/* {formatCurrency(invoice.amount)} */}
-                    <Link
-                      href={`/dashboard/orders/${invoice.id}/create`}
-                      className="text-blue-600 underline hover:text-blue-500 cursor-pointer mb-1"
-                    >
-                      添加消费
-                    </Link>
-                    <div
-                      className="text-blue-600 underline hover:text-blue-500"
-                    >消费历史</div>
+                    张三
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {formatCurrency(invoice.amount)}
 
+                  </td>
+                  
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {/* <div
+                      className="text-blue-600 underline hover:text-blue-500 cursor-pointer mb-1"
+                    >添加消费</div> */}
+                    {formatDateToLocal(invoice.date)}
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                      <UpdateCustomer id={invoice.id} />
+                      详情
+                      {/* <UpdateCustomer id={invoice.id} /> */}
                       {/* <DeleteInvoice id={invoice.id} /> */}
                     </div>
                   </td>
