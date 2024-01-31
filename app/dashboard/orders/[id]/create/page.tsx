@@ -1,4 +1,4 @@
-import Form from '@/app/ui/orders/edit-form';
+import Form from '@/app/ui/orders/create-form';
 import Breadcrumbs from '@/app/ui/invoices/breadcrumbs';
 import { fetchInvoiceById, fetchCustomers } from '@/app/lib/data';
 import { notFound } from 'next/navigation';

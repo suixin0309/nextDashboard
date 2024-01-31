@@ -11,7 +11,6 @@ import {
 import { Button } from '@/app/ui/button';
 import { createInvoice } from '@/app/lib/actions';
 import { useFormState } from 'react-dom';
-
 export default function Form({ customers }: { customers: CustomerField[] }) {
   const initialState = { message: null, errors: {} }
   const [state, dispatch] = useFormState(createInvoice, initialState);
@@ -74,13 +73,13 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
           </div>
         </div>
         <div id="amount-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.amount &&
-              state.errors.amount.map((error: string) => (
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              ))}
-          </div>
+          {state.errors?.amount &&
+            state.errors.amount.map((error: string) => (
+              <p className="mt-2 text-sm text-red-500" key={error}>
+                {error}
+              </p>
+            ))}
+        </div>
         {/* Invoice Status */}
         <fieldset>
           <legend className="mb-2 block text-sm font-medium">

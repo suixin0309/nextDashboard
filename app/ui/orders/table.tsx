@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import { UpdateCustomer, DeleteInvoice } from '@/app/ui/customers/buttons';
-import InvoiceStatus from '@/app/ui/orders/status';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { fetchFilteredInvoices } from '@/app/lib/data';
 
@@ -37,7 +36,6 @@ export default async function OrdersTable({
                     </div>
                     <p className="text-sm text-gray-500">{invoice.email}</p>
                   </div>
-                  <InvoiceStatus status={invoice.status} />
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div>
@@ -67,7 +65,7 @@ export default async function OrdersTable({
                   消费类型
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  消费项目
+                  项目名称
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   金额/次数
@@ -75,7 +73,7 @@ export default async function OrdersTable({
                 <th scope="col" className="px-3 py-5 font-medium">
                   消费时间
                 </th>
-                <th scope="col" className="px-3 py-5 font-medium">
+                <th scope="col" className="px-3 py-5 font-medium text-center">
                   记录人
                 </th>
                 {/* <th scope="col" className="relative py-3 pl-6 pr-3">
@@ -122,9 +120,9 @@ export default async function OrdersTable({
                     >添加消费</div> */}
                     {formatDateToLocal(invoice.date)}
                   </td>
-                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                    <div className="flex justify-end gap-3">
-                      详情
+                  <td className="whitespace-nowrap px-3 text-center pr-3">
+                    <div className="flex justify-center">
+                      张三
                       {/* <UpdateCustomer id={invoice.id} /> */}
                       {/* <DeleteInvoice id={invoice.id} /> */}
                     </div>

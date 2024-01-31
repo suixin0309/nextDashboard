@@ -100,13 +100,13 @@ export default function EditInvoiceForm({
         </div>
       </div>
       <div className='mt-6 grid grid-cols-1  md:grid-cols-8 lg:grid-cols-5'>
-        <a href='javascript:;'
-          className="flex h-10 items-center rounded-lg bg-blue-600 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+        <div
+          className="flex h-10 cursor-pointer items-center rounded-lg bg-blue-600 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
         >
           {/* <Button>添加项目</Button> */}
           <span className="hidden md:block">添加项目</span>{' '}
           <PlusIcon className="h-5 md:ml-4" />
-        </a>
+        </div>
       </div>
       <div className='rounded-md bg-gray-50 pb-2'>
         <div className="p-6 md:p-4 mt-1 flex ">
