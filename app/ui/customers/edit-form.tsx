@@ -125,7 +125,7 @@ export default function EditInvoiceForm({
         </div>
         {
           [1, 2, 3, 4].map(item => {
-            return <div className="rounded-md bg-gray-50 pl-4 pr-4 pb-2 flex items-center">
+            return <div key={item.toString()} className="rounded-md bg-gray-50 pl-4 pr-4 pb-2 flex items-center">
               <div className="grow">
                 <div className="relative">
                   <select
