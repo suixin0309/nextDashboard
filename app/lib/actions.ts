@@ -66,7 +66,7 @@ export async function createInvoice(prevState: State, formData: FormData) {
   // Test it out:
   // console.log(rawFormData);
 }
-export async function updateInvoice(id: string, formData: FormData) {
+export async function updateInvoice(id: string,prev: State, formData: FormData) {
   const validatedFields = CreateInvoice.safeParse({
     customerId: formData.get('customerId'),
     amount: formData.get('amount'),

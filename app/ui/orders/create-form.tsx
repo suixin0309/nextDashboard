@@ -45,11 +45,11 @@ export default function EditInvoiceForm({
     setProjects([...projects])
   }
   //delete 项目
-  const deleteProject = (projectId: String | Number) => {
+  const deleteProject = (project: String | Object) => {
     // Add your delete project logic here
-    console.log(projectId);
+    console.log(project);
     const newProjects = projects.filter((project: any) => {
-      if (project?.id !== projectId) {
+      if (project?.id !== project) {
         return project
       }
     })
@@ -166,14 +166,13 @@ export default function EditInvoiceForm({
         {
           projects.map(item => {
             // grid grid-cols-3 gap-4
-            return <div key={item.id} className="rounded-md bg-gray-50 pl-4 pr-4 pb-2  items-center grid grid-cols-10 gap-2">
+            return <div key={item.toString()} className="rounded-md bg-gray-50 pl-4 pr-4 pb-2  items-center grid grid-cols-10 gap-2">
               <div className="col-span-2">
                 <div className="">
                   <select
                     id="customer"
                     name="customerId"
                     className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2  text-sm  placeholder:text-gray-500"
-                    defaultValue={item.id}
                   >
                     <option value="" disabled>
                       Select a customer
@@ -192,7 +191,6 @@ export default function EditInvoiceForm({
                     id="customer"
                     name="customerId"
                     className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-                    defaultValue={item.id}
                   >
                     <option value="" disabled>
                       Select a customer
@@ -210,7 +208,6 @@ export default function EditInvoiceForm({
                 <div className="">
                   <input
                     className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 text-sm outline-2 placeholder:text-gray-500"
-                    defaultValue={item.name}
                   >
                   </input>
                 </div>
@@ -219,7 +216,6 @@ export default function EditInvoiceForm({
                 <div className="">
                   <input
                     className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 text-sm outline-2 placeholder:text-gray-500"
-                    defaultValue={item.name}
                   >
                   </input>
                 </div>
@@ -227,7 +223,7 @@ export default function EditInvoiceForm({
               <div className='col-span-1'>
                 <button onClick={
                   // Attempt to recover by trying to re-render the invoices route
-                  () => deleteProject(item.id)
+                  () => deleteProject(item)
                 } >删除</button>
               </div>
             </div>
