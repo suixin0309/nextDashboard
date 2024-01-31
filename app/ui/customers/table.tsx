@@ -70,7 +70,7 @@ export default async function CustomersTable({
                 <th scope="col" className="px-3 py-5 font-medium">
                   消费操作
                 </th>
-                <th scope="col" className="relative py-3 pl-6 pr-3">
+                <th scope="col" className="relative py-3 pl-6 pr-3 text-center">
                   <span className="">操作</span>
                 </th>
               </tr>
@@ -117,7 +117,7 @@ export default async function CustomersTable({
 
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                    <div className="flex justify-end gap-3">
+                    <div className="flex justify-center gap-3">
                       <UpdateCustomer id={invoice.id} />
                       {/* <DeleteInvoice id={invoice.id} /> */}
                     </div>
