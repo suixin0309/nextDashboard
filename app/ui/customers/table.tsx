@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { UpdateCustomer, DeleteInvoice } from '@/app/ui/customers/buttons';
+import CustomerRecharge from '@/app/ui/customers/modal';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { fetchFilteredInvoices } from '@/app/lib/data';
 import Link from 'next/link';
@@ -11,6 +12,8 @@ export default async function CustomersTable({
   currentPage: number;
 }) {
   const invoices = await fetchFilteredInvoices(query, currentPage);
+  // const goRecharge = (id: string) => {
+  // }
 
   return (
     <div className="mt-6 flow-root">
@@ -111,10 +114,14 @@ export default async function CustomersTable({
                     >
                       添加消费
                     </Link>
+                    {/* <div
+                      className="text-blue-600 underline hover:text-blue-500"
+                      onClick={() => goRecharge(invoice.id)}
+                    >充值</div> */}
+                    <CustomerRecharge customerId={invoice.id}/>
                     <div
                       className="text-blue-600 underline hover:text-blue-500"
                     >消费历史</div>
-
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-center gap-3">

@@ -115,9 +115,6 @@ export default async function OrdersTable({
                   </td>
                   
                   <td className="whitespace-nowrap px-3 py-3">
-                    {/* <div
-                      className="text-blue-600 underline hover:text-blue-500 cursor-pointer mb-1"
-                    >添加消费</div> */}
                     {formatDateToLocal(invoice.date)}
                   </td>
                   <td className="whitespace-nowrap px-3 text-center pr-3">

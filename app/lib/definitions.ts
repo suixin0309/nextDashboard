@@ -2,6 +2,27 @@
 // It describes the shape of the data, and what data type each property should accept.
 // For simplicity of teaching, we're manually defining these types.
 // However, these types are generated automatically if you're using an ORM such as Prisma.
+
+//菜单配置
+//消费类型
+export const ConsumptionMenu: any = [
+  {
+    id: 1,
+    name: '余额充值',
+  },
+  {
+    id: 2,
+    name: '项目充值',
+  },
+  {
+    id: 3,
+    name: '充值项目消耗',
+  },
+  {
+    id: 4,
+    name: '单次消费',
+  }
+];
 export type User = {
   id: string;
   name: string;
@@ -85,4 +106,11 @@ export type InvoiceForm = {
   customer_id: string;
   amount: number;
   status: 'pending' | 'paid';
+};
+export type ProjectForm = {
+  id: string | Number;
+  projectName: string;
+  consumptionType: string | Number;
+  consumptionNumber: string | Number;
+  price: number | string;
 };
