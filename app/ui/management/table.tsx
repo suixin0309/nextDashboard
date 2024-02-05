@@ -1,10 +1,9 @@
 import Image from 'next/image';
 import { UpdateCustomer, DeleteInvoice } from '@/app/ui/customers/buttons';
-import {CustomerRecharge} from '@/app/ui/customers/modal';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { fetchFilteredInvoices } from '@/app/lib/data';
-import Link from 'next/link';
-export default async function CustomersTable({
+
+export default async function OrdersTable({
   query,
   currentPage,
 }: {
@@ -12,8 +11,6 @@ export default async function CustomersTable({
   currentPage: number;
 }) {
   const invoices = await fetchFilteredInvoices(query, currentPage);
-  // const goRecharge = (id: string) => {
-  // }
 
   return (
     <div className="mt-6 flow-root">
@@ -59,21 +56,21 @@ export default async function CustomersTable({
             <thead className="rounded-lg text-left text-sm font-normal">
               <tr>
                 <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                  会员名
+                  员工名
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   联系方式
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  时间
+                  账号
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  记录人
+                  创建时间
                 </th>
-                <th scope="col" className="px-3 py-5 font-medium">
-                  消费操作
+                <th scope="col" className="px-3 py-5 font-medium text-center">
+                  创建人
                 </th>
-                <th scope="col" className="relative py-3 pl-6 pr-3 text-center">
+                <th scope="col" className="relative py-3 pl-6 pr-3">
                   <span className="">操作</span>
                 </th>
               </tr>
@@ -100,34 +97,26 @@ export default async function CustomersTable({
                     {invoice.email}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {formatDateToLocal(invoice.date)}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-3">
-                    张三
+                    {invoice.email}
                     {/* <InvoiceStatus status={invoice.status} /> */}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {/* {formatCurrency(invoice.amount)} */}
-                    <Link
-                      href={`/dashboard/orders/${invoice.id}/create`}
-                      className="text-blue-600 underline hover:text-blue-500 cursor-pointer mb-1"
-                    >
-                      添加消费
-                    </Link>
-                    {/* <div
-                      className="text-blue-600 underline hover:text-blue-500"
-                      onClick={() => goRecharge(invoice.id)}
-                    >充值</div> */}
-                    <CustomerRecharge customerId={invoice.id}/>
-                    <div
-                      className="text-blue-600 cursor-pointer underline hover:text-blue-500"
-                    >消费历史</div>
+                    {formatDateToLocal(invoice.date)}
                   </td>
-                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                    <div className="flex justify-center gap-3">
-                      <UpdateCustomer id={invoice.id} />
+                  <td className="whitespace-nowrap px-3 text-center pr-3">
+                    <div className="flex justify-center">
+                      张三
+                      {/* <UpdateCustomer id={invoice.id} /> */}
                       {/* <DeleteInvoice id={invoice.id} /> */}
                     </div>
+                  </td>
+                  <td className="whitespace-nowrap px-3 text-center pr-3">
+                    <div
+                      className="text-blue-600 cursor-pointer underline hover:text-blue-500"
+                    >重置</div>
+                    <div
+                      className="text-blue-600 cursor-pointer underline hover:text-blue-500"
+                    >停用</div>
                   </td>
                 </tr>
               ))}

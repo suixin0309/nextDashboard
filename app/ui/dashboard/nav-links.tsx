@@ -3,22 +3,39 @@ import {
   UserGroupIcon,
   HomeIcon,
   DocumentDuplicateIcon,
+  Cog6ToothIcon,
+  BookmarkSquareIcon,
+  UserIcon
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
+import { Accordion, AccordionItem, divider } from "@nextui-org/react";
 // Map of links to display in the side navigation.
 // Depending on the size of the application, this would be stored in a database.
 const links = [
-  { name: 'Home', href: '/dashboard', icon: HomeIcon },
+  { name: '面板', href: '/dashboard', icon: HomeIcon },
   { name: '会员管理', href: '/dashboard/customers', icon: UserGroupIcon },
   { name: '消费记录', href: '/dashboard/orders', icon: UserGroupIcon },
+  { name: '员工管理', href: '/dashboard/management', icon: UserIcon },
+  {
+    name: '系统管理',
+    href: '/dashboard/system',
+    icon: Cog6ToothIcon,
+    children: [
+      {
+        name: '菜单项目管理',
+        href: '/dashboard/system/projects',
+        icon: BookmarkSquareIcon,
+      }
+    ]
+  },
   {
     name: 'Invoices',
     href: '/dashboard/invoices',
     icon: DocumentDuplicateIcon,
   },
-  
+
 ];
 
 export default function NavLinks() {
@@ -28,20 +45,62 @@ export default function NavLinks() {
     <>
       {links.map((link) => {
         const LinkIcon = link.icon;
-        return (
-          <Link
-            key={link.name}
-            href={link.href}
-            className={clsx(
-              "flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3",
-              {'bg-sky-100 text-blue-600':pathname===link.href,}
+        if (link.children) {
+          return (
+            <Accordion key={link.name}
+              className={clsx("text-sm font-semibold weight-500 rounded-md bg-gray-50 p-0 pr-2",{ 'bg-sky-100 text-blue-600': pathname === link.href, }
               )}
-              
-          >
-            <LinkIcon className="w-6" />
-            <p className="hidden md:block">{link.name}</p>
-          </Link>
-        );
+              style={{ fontSize: '14px' }}
+            >
+              <AccordionItem key={link.name} aria-label={link.name}
+                className="rounded-md text-sm font-medium"
+                startContent={
+                  <Link
+                    key={link.name}
+                    href="#"
+                    className="flex h-[48px] grow items-center justify-center pl-3 gap-2 rounded-md bg-gray-50 text-sm font-medium hover:text-blue-600"
+                  >
+                    <LinkIcon className="w-6" />
+                    <p className="hidden md:block">{link.name}</p>
+                  </Link>
+                }
+              >
+                {link.children.map((child) => {
+                  let ChildLinkIcon = child.icon;
+                  return (
+                    <Link
+                      key={child.name}
+                      href={child.href}
+                      className={clsx(
+                        "flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 pl-5 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start",
+                        { 'bg-sky-100 text-blue-600': pathname === child.href, }
+                      )}
+                    >
+                      <ChildLinkIcon className="w-6" />
+                      <p className="hidden md:block">{child.name}</p>
+                    </Link>
+                  )
+                })}
+              </AccordionItem>
+            </Accordion>
+          )
+        }
+        else {
+          return (
+            <Link
+              key={link.name}
+              href={link.href}
+              className={clsx(
+                "flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3",
+                { 'bg-sky-100 text-blue-600': pathname === link.href, }
+              )}
+
+            >
+              <LinkIcon className="w-6" />
+              <p className="hidden md:block">{link.name}</p>
+            </Link>
+          );
+        }
       })}
     </>
   );
