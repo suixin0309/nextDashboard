@@ -29,7 +29,31 @@ export type User = {
   email: string;
   password: string;
 };
-
+export type Management = {
+  id: string;
+  loginName: string;
+  loginPassword: string;
+  nickNme: string;
+};
+export type ManagementTable = {
+  id: string;
+  login_name: string;
+  nickname: string;
+  create_time: string;
+};
+export type MemberTable = {
+  id: string;
+  name: string;
+  phone: string;
+  create_time: string;
+};
+export type Member = {
+  id: string;
+  name: string;
+  phone: string;
+  address: string;
+  remarks: string;
+};
 export type Customer = {
   id: string;
   name: string;
@@ -113,4 +137,11 @@ export type ProjectForm = {
   consumptionType: string | Number;
   consumptionNumber: string | Number;
   price: number | string;
+};
+export type InventoryData = {
+  id: string;
+  customer_id: string;
+  name: number;
+  type: string;
+  status: 'pending' | 'paid';
 };

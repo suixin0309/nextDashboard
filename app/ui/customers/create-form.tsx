@@ -11,27 +11,11 @@ import {
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
-import { createInvoice } from '@/app/lib/actions'
+import { createMember } from '@/app/lib/actions'
 import { useFormState } from 'react-dom';
-export default function EditInvoiceForm({
-  customers,
-}: {
-  customers: CustomerField[];
-}) {
-  // const initialState = { message: null, error: {} }
-  // const customer:any={}
-  // const [state, dispatch] = useFormState(createInvoice, initialState)
-
+export default function CreateMember() {
   const initialState = { message: null, errors: {} }
-  const [state, dispatch] = useFormState(createInvoice, initialState);
-  //add 项目
-  const addProject = () => {
-
-  }
-  //delete 项目
-  const deleteProject = () => {
-    // Add your delete project logic here
-  }
+  const [state, dispatch] = useFormState(createMember, initialState);
   return (
     <form action={dispatch}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6 mt-6 grid grid-cols-1 gap-6 md:grid-cols-1 lg:grid-cols-2">
@@ -42,6 +26,7 @@ export default function EditInvoiceForm({
           </label>
           <div className="relative">
             <input
+              name='name'
               className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               maxLength={10}
             >
@@ -55,6 +40,7 @@ export default function EditInvoiceForm({
           </label>
           <div className="relative">
             <input
+              name='phone'
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               maxLength={13}
               type="tel"
@@ -85,10 +71,25 @@ export default function EditInvoiceForm({
         </div> */}
         <div className="mb-4">
           <label htmlFor="customer" className="mb-2 block text-sm font-medium">
+            地址
+          </label>
+          <div className="">
+            <input
+              name='address'
+              className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 text-sm outline-2 placeholder:text-gray-500"
+              maxLength={50}
+              type="text"
+            >
+            </input>
+          </div>
+        </div>
+        <div className="mb-4">
+          <label htmlFor="customer" className="mb-2 block text-sm font-medium">
             备注
           </label>
           <div className="">
             <input
+              name='remarks'
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 text-sm outline-2 placeholder:text-gray-500"
               maxLength={50}
               type="text"

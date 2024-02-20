@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-
+import { Popover, PopoverTrigger, PopoverContent, User } from "@nextui-org/react";
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
 }
@@ -17,3 +17,18 @@ export function Button({ children, className, ...rest }: ButtonProps) {
     </button>
   );
 }
+export function PopoverDelete({ children, className, ...rest }: ButtonProps) {
+  return (
+    <Popover showArrow placement="bottom">
+      <PopoverTrigger>
+        <div className="text-blue-600 cursor-pointer underline hover:text-blue-500">
+          删除
+        </div>
+      </PopoverTrigger>
+      <PopoverContent className="p-1">
+        {children}
+      </PopoverContent>
+    </Popover>
+  );
+}
+

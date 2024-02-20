@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
-
+import bcrypt from 'bcrypt';
 const FormSchema = z.object({
   id: z.string(),
   customerId: z.string({
@@ -20,8 +20,6 @@ const FormSchema = z.object({
 
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 const UpdateInvoice = FormSchema.omit({ id: true, date: true });
-
-// This is temporary until @types/react-dom is updated
 export type State = {
   errors?: {
     customerId?: string[];
@@ -30,7 +28,146 @@ export type State = {
   };
   message?: string | null;
 };
+//创建员工、账号
+const ManagementFormSchema = z.object({
+  id: z.string(),
+  // managementId: z.string(),
+  nickName: z.string({
+    invalid_type_error: '必须提供员工姓名',
+  }),
+  loginName: z.string({
+    invalid_type_error: '必须提供员工联系方式',
+  }),
+  date: z.string(),
+});
+const CreateManagement = ManagementFormSchema.omit({ id: true, date: true });
+const UpdateManagement = ManagementFormSchema.omit({ id: true, date: true });
+export type ManagementState = {
+  errors?: {
+    // managementId?: string[];
+    nickName?: string[];
+    loginName?: string[];
+  };
+  message?: string | null;
+};
+export async function createManagement(prevState: ManagementState, formData: FormData) {
+  const validatedFields = CreateManagement.safeParse({
+    // managementId: formData.get('managementId'),
+    nickName: formData.get('nickName'),
+    loginName: formData.get('loginName'),
+  });
+  //返回一个包含 asuccess或error字段的对象
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create Invoice.',
+    };
+  }
+  const { nickName, loginName  } = validatedFields.data;
+  const date = new Date().toISOString().split('T')[0];
+  let initPwd='111111';
+  let pwd=bcrypt.hashSync(initPwd, 5);
+  try {
+    await sql`
+    INSERT INTO t_user (login_name,login_password, nickname)
+    VALUES ( ${loginName},${pwd},${nickName})
+    `;
 
+  } catch (error) {
+    return {
+      message: 'Database error: ' + error,
+    }
+  }
+  
+  // try {
+  //   await sql`
+  //   INSERT INTO users (Name,Email,Password)
+  //   VALUES (${managementName}, ${tel},${pwd})
+  //   `;
+
+  // } catch (error) {
+  //   return {
+  //     message: 'Database error: ' + error,
+  //   }
+  // }
+  revalidatePath('/dashboard/management');//清除缓存，重新验证，获取数据
+  redirect('/dashboard/management'); //重定向
+
+
+  // const rawFormData = Object.fromEntries(formData.entries())
+  // Test it out:
+  // console.log(rawFormData);
+}
+//创建会员
+const MemberFormSchema = z.object({
+  id: z.string(),
+  // managementId: z.string(),
+  name: z.string({
+    invalid_type_error: '必须提供会员姓名',
+  }),
+  phone: z.string({
+    invalid_type_error: '必须提供员工联系方式',
+  }),
+  address: z.string(),
+  remarks: z.string(),
+  date: z.string(),
+});
+const CreateMember = MemberFormSchema.omit({ id: true, date: true });
+const UpdateMember = MemberFormSchema.omit({ id: true, date: true });
+export type MemberState = {
+  errors?: {
+    name?: string[];
+    phone?: string[];
+  };
+  message?: string | null;
+};
+export async function createMember(prevState: MemberState, formData: FormData) {
+  const validatedFields = CreateMember.safeParse({
+    name: formData.get('name'),
+    phone: formData.get('phone'),
+    address: formData.get('address'),
+    remarks: formData.get('remarks'),
+  });
+  //返回一个包含 asuccess或error字段的对象
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create Invoice.',
+    };
+  }
+  const { name, phone, address ,remarks} = validatedFields.data;
+  const date = new Date().toISOString().split('T')[0];
+  try {
+    await sql`
+    INSERT INTO t_member (name,phone, address,remarks)
+    VALUES ( ${name},${phone},${address},${remarks})
+    `;
+
+  } catch (error) {
+    return {
+      message: 'Database error: ' + error,
+    }
+  }
+  
+  // try {
+  //   await sql`
+  //   INSERT INTO users (Name,Email,Password)
+  //   VALUES (${managementName}, ${tel},${pwd})
+  //   `;
+
+  // } catch (error) {
+  //   return {
+  //     message: 'Database error: ' + error,
+  //   }
+  // }
+  revalidatePath('/dashboard/customers');//清除缓存，重新验证，获取数据
+  redirect('/dashboard/customers'); //重定向
+
+
+  // const rawFormData = Object.fromEntries(formData.entries())
+  // Test it out:
+  // console.log(rawFormData);
+}
 export async function createInvoice(prevState: State, formData: FormData) {
   const validatedFields = CreateInvoice.safeParse({
     customerId: formData.get('customerId'),

@@ -1,6 +1,6 @@
 'use client';
 
-import { CustomerField,Member, InvoiceForm, ProjectForm } from '@/app/lib/definitions';
+import { CustomerField, InvoiceForm, ProjectForm } from '@/app/lib/definitions';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import {
   BookmarkSquareIcon,
@@ -10,7 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
-import { updateInvoice } from '@/app/lib/actions';
+import { updateInvoice } from '@/app/lib/actions'
 import { useFormState } from 'react-dom';
 import { useState } from 'react';
 
@@ -18,7 +18,7 @@ export default function EditInvoiceForm({
   customer,
   customers,
 }: {
-  customer: Member;
+  customer: InvoiceForm;
   customers: CustomerField[];
 }) {
   const initialState = { message: null, error: {} }
@@ -64,7 +64,7 @@ export default function EditInvoiceForm({
           <div className="relative">
             <input
               className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              defaultValue={customer.name}
+              defaultValue={customer.customer_id}
               maxLength={10}
             >
             </input>
@@ -78,7 +78,7 @@ export default function EditInvoiceForm({
           <div className="relative">
             <input
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              defaultValue={customer.phone}
+              defaultValue={customer.customer_id}
               maxLength={13}
               type="tel"
             >
@@ -87,34 +87,6 @@ export default function EditInvoiceForm({
           </div>
         </div>
         {/* customer Amount */}
-        <div className="mb-4">
-          <label htmlFor="customer" className="mb-2 block text-sm font-medium">
-            地址
-          </label>
-          <div className="">
-            <input
-              className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 text-sm outline-2 placeholder:text-gray-500"
-              defaultValue={customer.address}
-              maxLength={50}
-              type="text"
-            >
-            </input>
-          </div>
-        </div>
-        <div className="mb-4">
-          <label htmlFor="customer" className="mb-2 block text-sm font-medium">
-            备注
-          </label>
-          <div className="">
-            <input
-              className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 text-sm outline-2 placeholder:text-gray-500"
-              defaultValue={customer.remarks}
-              maxLength={50}
-              type="text"
-            >
-            </input>
-          </div>
-        </div>
         <div className="mb-4">
           <label htmlFor="amount" className="mb-2 block text-sm font-medium">
             余额
@@ -126,7 +98,7 @@ export default function EditInvoiceForm({
                 name="amount"
                 type="number"
                 step="0.01"
-                defaultValue={customer.id}
+                defaultValue={customer.amount}
                 placeholder="0.00"
                 disabled
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
@@ -135,8 +107,21 @@ export default function EditInvoiceForm({
             </div>
           </div>
         </div>
+        <div className="mb-4">
+          <label htmlFor="customer" className="mb-2 block text-sm font-medium">
+            备注
+          </label>
+          <div className="">
+            <input
+              className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 text-sm outline-2 placeholder:text-gray-500"
+              defaultValue={customer.customer_id}
+              maxLength={50}
+              type="text"
+            >
+            </input>
+          </div>
+        </div>
       </div>
-      
       {!projects.length||<div className='rounded-md bg-gray-50 pb-2'>
         <div className="p-6 md:p-4 mt-1 flex ">
           <div className="grow">

@@ -65,7 +65,7 @@ export default async function ProjectsTable({
                   时间
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium text-center">
-                  记录人
+                  创建人
                 </th>
                 {/* <th scope="col" className="relative py-3 pl-6 pr-3">
                   <span className="">操作</span>

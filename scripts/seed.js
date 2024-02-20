@@ -61,6 +61,8 @@ async function createTMemberTable(client) {
         name VARCHAR(255) NOT NULL,
         type SMALLINT,
         phone VARCHAR(255) NOT NULL,
+        // amount INT NOT NULL,
+        // projectList array NOT NULL,
         remarks VARCHAR(255),
         address VARCHAR(255),
         create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
