@@ -58,7 +58,7 @@ export default async function StatisticsChart() {
               overflow: 'hidden',
               textOverflow: 'ellipsis',
             },
-            content: 'AntV',
+            content: '',
           },
         },
       });

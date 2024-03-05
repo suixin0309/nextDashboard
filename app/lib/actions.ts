@@ -3,7 +3,7 @@ import { z } from 'zod';//类型验证库
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { signIn } from '@/auth';
+import { signIn,auth } from '@/auth';
 import { AuthError } from 'next-auth';
 import bcrypt from 'bcrypt';
 const FormSchema = z.object({
@@ -245,7 +245,7 @@ export async function deleteInvoice(id: string) {
 //验证身份
 export async function authenticate(prevState:string|undefined,formData:FormData) {
   try{
-    await signIn('credentials', formData);
+    const user = await signIn('credentials', formData);
   }catch(error){
     if(error instanceof AuthError){
       switch(error.type){

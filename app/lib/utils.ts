@@ -6,10 +6,11 @@ export const formatCurrency = (amount: number) => {
     currency: 'CNY',
   });
 };
+//转中文时间
 
 export const formatDateToLocal = (
   dateStr: string,
-  locale: string = 'en-US',
+  locale: string = 'zh-CN',
 ) => {
   const date = new Date(dateStr);
   const options: Intl.DateTimeFormatOptions = {
