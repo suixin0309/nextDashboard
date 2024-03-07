@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { UpdateCustomer, DeleteInvoice } from '@/app/ui/customers/buttons';
-import {CustomerRecharge} from '@/app/ui/customers/modal';
+import { CustomerRecharge } from '@/app/ui/customers/modal';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { fetchFilteredMembers } from '@/app/lib/data';
 import Link from 'next/link';
@@ -28,6 +28,10 @@ export default async function CustomersTable({
                 <th scope="col" className="px-3 py-5 font-medium">
                   联系方式
                 </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  余额
+                </th>
+
                 <th scope="col" className="px-3 py-5 font-medium">
                   时间
                 </th>
@@ -67,8 +71,13 @@ export default async function CustomersTable({
                     {/* {invoice.create_time} */}
                     {formatDateToLocal(invoice.create_time)}
                   </td>
+
                   <td className="whitespace-nowrap px-3 py-3">
                     张三
+                    {/* <InvoiceStatus status={invoice.status} /> */}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {formatCurrency(invoice.amount)}
                     {/* <InvoiceStatus status={invoice.status} /> */}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
@@ -83,7 +92,7 @@ export default async function CustomersTable({
                       className="text-blue-600 underline hover:text-blue-500"
                       onClick={() => goRecharge(invoice.id)}
                     >充值</div> */}
-                    <CustomerRecharge customerId={invoice.id}/>
+                    <CustomerRecharge customerId={invoice.id} />
                     <div
                       className="text-blue-600 cursor-pointer underline hover:text-blue-500"
                     >消费历史</div>

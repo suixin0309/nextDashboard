@@ -288,6 +288,7 @@ export async function fetchFilteredMembers(
       SELECT
         t_member.id,
         t_member.name,
+        t_member.amount,
         t_member.phone,
         t_member.create_time
       FROM t_member
@@ -354,5 +355,21 @@ export async function getUser(email: string) {
   } catch (error) {
     console.error('Failed to fetch user:', error);
     throw new Error('Failed to fetch user.');
+  }
+}
+
+//面板
+export async function fetchLatestMembers() {
+  noStore();
+  try {
+    const data = await sql<Member>`SELECT * FROM t_member ORDER BY create_time DESC LIMIT 5`;
+    const latestMembers = data.rows.map((member) => ({
+      ...member,
+      amount: formatCurrency(member.amount),
+    }));
+    return latestMembers;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch the latest members.');
   }
 }

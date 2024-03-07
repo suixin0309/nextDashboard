@@ -1,6 +1,6 @@
 'use client';
 
-import { InvoicesTable, InventoryData, ProjectForm } from '@/app/lib/definitions';
+import { InvoicesTable } from '@/app/lib/definitions';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import React, { useState } from 'react';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure } from '@nextui-org/react'

@@ -22,7 +22,7 @@ import { Accordion, AccordionItem, divider } from "@nextui-org/react";
 const links = [
   { name: '面板', href: '/dashboard', icon: ChartBarSquareIcon },
   { name: '会员管理', href: '/dashboard/customers', icon: UserGroupIcon },
-  { name: '消费记录', href: '/dashboard/orders', icon: BookmarkIcon },
+  { name: '账单记录', href: '/dashboard/orders', icon: BookmarkIcon },
   { name: '员工管理', href: '/dashboard/management', icon: UserIcon },
   {
     name: '耗材管理',

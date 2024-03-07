@@ -28,6 +28,13 @@ export type User = {
   name: string;
   email: string;
   password: string;
+  login_name: string;
+  login_password: string;
+  nickname: string;
+  avatar: string;
+  remarks: string;
+  create_time: string;
+  update_time: string;
 };
 export type Management = {
   id: string;
@@ -44,22 +51,30 @@ export type ManagementTable = {
 export type MemberTable = {
   id: string;
   name: string;
+  amount: number;
   phone: string;
   create_time: string;
 };
-export type Member = {
-  id: string;
+
+
+// 预付费套餐表字段映射的类型
+export interface PrepaidPackage {
+  id: number;
   name: string;
-  phone: string;
-  address: string;
-  remarks: string;
-};
-export type Customer = {
-  id: string;
-  name: string;
-  email: string;
-  image_url: string;
-};
+  price: number;
+  duration: number;
+  description?: string;
+  created_at: string; // 根据数据库存储的时间格式调整
+}
+
+// 消费记录表字段映射的类型
+export interface ConsumptionRecord {
+  id: number;
+  member_id: number;
+  package_id: number;
+  consumed_amount: number;
+  create_time: string; // 根据数据库存储的时间格式调整
+}
 
 export type Invoice = {
   id: string;
