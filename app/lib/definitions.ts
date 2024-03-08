@@ -55,17 +55,24 @@ export type MemberTable = {
   phone: string;
   create_time: string;
 };
-
+export type Member = {
+  id: string;
+  name: string;
+  amount: number;
+  phone: string;
+  address: string;
+  create_time: string;
+};
 
 // 预付费套餐表字段映射的类型
-export interface PrepaidPackage {
-  id: number;
-  name: string;
-  price: number;
-  duration: number;
-  description?: string;
-  created_at: string; // 根据数据库存储的时间格式调整
-}
+// export interface PrepaidPackage {
+//   id: number;
+//   name: string;
+//   price: number;
+//   duration: number;
+//   description?: string;
+//   created_time: string; // 根据数据库存储的时间格式调整
+// }
 
 // 消费记录表字段映射的类型
 export interface ConsumptionRecord {
@@ -75,6 +82,27 @@ export interface ConsumptionRecord {
   consumed_amount: number;
   create_time: string; // 根据数据库存储的时间格式调整
 }
+// /app/lib/definitions.ts
+
+export interface Ticket {
+  id: number;
+  ticket_name: string;
+  enabled: number;
+  price: number;
+}
+
+export interface MemberTicket {
+  id: number;
+  member_id: number;
+  ticket_id: number;
+  amount: number;
+  create_time: string;
+}
+
+
+
+
+///////////
 
 export type Invoice = {
   id: string;

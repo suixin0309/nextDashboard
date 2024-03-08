@@ -10,7 +10,8 @@ import {
   Revenue,
   ManagementTable,
   MemberTable,
-  Member
+  Member,
+  Ticket
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -371,5 +372,51 @@ export async function fetchLatestMembers() {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch the latest members.');
+  }
+}
+//系统设置
+//获取项目列表
+export async function fetchFilteredProjects(
+  query: string,
+  currentPage: number,
+) {
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  try {
+    const users = await sql<Ticket>`
+      SELECT
+        ticket.id,
+        ticket.ticket_name,
+        ticket.price,
+        ticket.enabled
+      FROM ticket
+      WHERE
+        ticket.ticket_name ILIKE ${`%${query}%`}
+      ORDER BY ticket.ticket_name DESC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+    return users.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch ticket.');
+  }
+}
+export async function fetchProjectsPages(query: string) {
+  noStore();
+  try {
+    const count = await sql`SELECT COUNT(*)
+    FROM ticket
+    WHERE
+    ticket.ticket_name ILIKE ${`%${query}%`} 
+  `;
+  console.log(count)
+    console.log('countpppppwppwpwppwpwp')
+//customers.date::text ILIKE ${`%${query}%`} OR
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    console.log(totalPages)
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of prepaid_packagePages.');
   }
 }

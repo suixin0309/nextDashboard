@@ -78,25 +78,9 @@ export async function createManagement(prevState: ManagementState, formData: For
       message: 'Database error: ' + error,
     }
   }
-  
-  // try {
-  //   await sql`
-  //   INSERT INTO users (Name,Email,Password)
-  //   VALUES (${managementName}, ${tel},${pwd})
-  //   `;
-
-  // } catch (error) {
-  //   return {
-  //     message: 'Database error: ' + error,
-  //   }
-  // }
   revalidatePath('/dashboard/management');//清除缓存，重新验证，获取数据
   redirect('/dashboard/management'); //重定向
 
-
-  // const rawFormData = Object.fromEntries(formData.entries())
-  // Test it out:
-  // console.log(rawFormData);
 }
 //创建会员
 const MemberFormSchema = z.object({
@@ -163,10 +147,6 @@ export async function createMember(prevState: MemberState, formData: FormData) {
   revalidatePath('/dashboard/customers');//清除缓存，重新验证，获取数据
   redirect('/dashboard/customers'); //重定向
 
-
-  // const rawFormData = Object.fromEntries(formData.entries())
-  // Test it out:
-  // console.log(rawFormData);
 }
 export async function createInvoice(prevState: State, formData: FormData) {
   const validatedFields = CreateInvoice.safeParse({
@@ -198,10 +178,6 @@ export async function createInvoice(prevState: State, formData: FormData) {
   revalidatePath('/dashboard/invoices');//清除缓存，重新验证，获取数据
   redirect('/dashboard/invoices'); //重定向
 
-
-  // const rawFormData = Object.fromEntries(formData.entries())
-  // Test it out:
-  // console.log(rawFormData);
 }
 export async function updateInvoice(id: string,prev: State, formData: FormData) {
   const validatedFields = CreateInvoice.safeParse({
@@ -240,6 +216,53 @@ export async function deleteInvoice(id: string) {
     }
   }
   revalidatePath('/dashboard/invoices');
+}
+//系统管理
+//添加菜单项目
+const ProjectFormSchema = z.object({
+  id: z.string(),
+  // managementId: z.string(),
+  ticket_name: z.string({
+    invalid_type_error: '必须提供项目名',
+  }),
+  price: z.string({
+    invalid_type_error: '必须提供项目价格',
+  }),
+});
+const CreateProject = ProjectFormSchema.omit({ id: true });
+const UpdateProject = ProjectFormSchema.omit({ id: true});
+export type ProjectState = {
+  errors?: {
+    ticket_name?: string;
+    price?: string|number;
+  };
+  message?: string | null;
+};
+export async function createProject(prevState: ProjectState, formData: FormData) {
+  const validatedFields = CreateProject.safeParse({
+    ticket_name: formData.get('ticket_name'),
+    price: formData.get('price'),
+  });
+  //返回一个包含 asuccess或error字段的对象
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create createProject.',
+    };
+  }
+  const { ticket_name,price} = validatedFields.data;
+  try {
+    await sql`
+    INSERT INTO ticket (ticket_name,price)
+    VALUES ( ${ticket_name},${price})
+    `;
+  } catch (error) {
+    return {
+      message: 'Database error: ' + error,
+    }
+  }
+  revalidatePath('/dashboard/system/projects');//清除缓存，重新验证，获取数据
+  redirect('/dashboard/system/projects'); //重定向
 }
 
 //验证身份
