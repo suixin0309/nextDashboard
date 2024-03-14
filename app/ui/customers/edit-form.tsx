@@ -1,6 +1,6 @@
 'use client';
 
-import { CustomerField,Member, InvoiceForm, ProjectForm } from '@/app/lib/definitions';
+import { CustomerField,Member, MemberTicket, ProjectForm, Ticket } from '@/app/lib/definitions';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import {
   BookmarkSquareIcon,
@@ -16,43 +16,18 @@ import { useState } from 'react';
 
 export default function EditInvoiceForm({
   customer,
-  customers,
+  projects,
+  tickets
 }: {
   customer: Member;
-  customers: CustomerField[];
+  projects: Ticket[];
+  tickets: MemberTicket[];
 }) {
   const initialState = { message: null, error: {} }
   const updateInvoiceWithId = updateInvoice.bind(null, customer.id);
   const [state, dispatch] = useFormState(updateInvoiceWithId, initialState)
-  const initProjects: Array<ProjectForm> = [{
-    id: 1,
-    projectName: '',
-    price: 0,
-    consumptionNumber: '1',
-    consumptionType: 2,
-  }]
-  const [projects, setProjects] = useState(initProjects)
-  //add 项目
-  const addProject = () => {
-    const project: ProjectForm = {
-      id: projects.length + 1,
-      projectName: '',
-      price: 0,
-      consumptionNumber: '1',
-      consumptionType: 2,
-    }
-    projects.push(project)
-    setProjects([...projects])
-  }
-  //delete 项目
-  const deleteProject = (id: any) => {
-    const newProjects = projects.filter((project: ProjectForm) => {
-      if (project?.id !== id) {
-        return project
-      }
-    })
-    setProjects([...newProjects])
-  }
+  const initProjects: Array<ProjectForm> = []
+  const [projectsList, setProjects] = useState(initProjects)
   return (
     <form action={dispatch}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6 mt-6 grid grid-cols-1 gap-6 md:grid-cols-1 lg:grid-cols-2">
@@ -126,7 +101,7 @@ export default function EditInvoiceForm({
                 name="amount"
                 type="number"
                 step="0.01"
-                defaultValue={customer.id}
+                defaultValue={customer.amount/100}
                 placeholder="0.00"
                 disabled
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
@@ -137,7 +112,7 @@ export default function EditInvoiceForm({
         </div>
       </div>
       
-      {!projects.length||<div className='rounded-md bg-gray-50 pb-2'>
+      {!tickets.length||<div className='rounded-md bg-gray-50 pb-2'>
         <div className="p-6 md:p-4 mt-1 flex ">
           <div className="grow">
             <label htmlFor="customer" className="block text-sm font-medium">
@@ -153,7 +128,7 @@ export default function EditInvoiceForm({
           </div>
         </div>
         {
-          projects.map(item => {
+          tickets.map(item => {
             return <div key={item.toString()} className="rounded-md bg-gray-50 pl-4 pr-4 pb-2 flex items-center">
               <div className="grow">
                 <div className="relative">
@@ -161,16 +136,16 @@ export default function EditInvoiceForm({
                     id="customer"
                     name="customerId"
                     className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-                    defaultValue={customer.customer_id}
+                    defaultValue={item.ticket_id}
                     aria-readonly
                     disabled
                   >
                     <option value="" disabled>
                       选择项目
                     </option>
-                    {customers.map((customer) => (
-                      <option key={customer.id} value={customer.id}>
-                        {customer.name}
+                    {projects.map((proitem) => (
+                      <option key={proitem.id} value={proitem.id}>
+                        {proitem.ticket_name}
                       </option>
                     ))}
                   </select>
@@ -181,7 +156,7 @@ export default function EditInvoiceForm({
                 <div className="">
                   <input
                     className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 text-sm outline-2 placeholder:text-gray-500"
-                    defaultValue={Number(item.consumptionNumber)}
+                    defaultValue={Number(item.nums)}
                     type='number'
                     disabled
 

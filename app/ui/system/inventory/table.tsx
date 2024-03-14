@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { UpdateCustomer, DeleteInvoice } from '@/app/ui/customers/buttons';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
-import { fetchFilteredInvoices } from '@/app/lib/data';
+import { fetchFilteredInvoices1 } from '@/app/lib/data';
 
 export default async function ProjectsTable({
   query,
@@ -10,7 +10,7 @@ export default async function ProjectsTable({
   query: string;
   currentPage: number;
 }) {
-  const invoices = await fetchFilteredInvoices(query, currentPage);
+  const invoices = await fetchFilteredInvoices1(query, currentPage);
 
   return (
     <div className="mt-6 flow-root">

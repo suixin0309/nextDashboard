@@ -6,22 +6,31 @@
 //菜单配置
 //消费类型
 export const ConsumptionMenu: any = [
+  // {
+  //   id: 0,
+  //   name: '余额充值',
+  //   isShow:false,
+  // },
   {
     id: 1,
-    name: '余额充值',
+    name: '项目充值',
+    isShow:true,
   },
   {
     id: 2,
-    name: '项目充值',
+    name: '充值项目消耗',
+    isShow:true,
   },
   {
     id: 3,
-    name: '充值项目消耗',
+    name: '单次消费',
+    isShow:true,
   },
   {
     id: 4,
-    name: '单次消费',
-  }
+    name: '余额消费',
+    isShow:true,
+  },
 ];
 export type User = {
   id: string;
@@ -40,12 +49,14 @@ export type Management = {
   id: string;
   loginName: string;
   loginPassword: string;
+  status: number;
   nickNme: string;
 };
 export type ManagementTable = {
   id: string;
   login_name: string;
   nickname: string;
+  status: number;
   create_time: string;
 };
 export type MemberTable = {
@@ -56,7 +67,7 @@ export type MemberTable = {
   create_time: string;
 };
 export type Member = {
-  id: string;
+  id: number;
   name: string;
   amount: number;
   phone: string;
@@ -96,9 +107,32 @@ export interface MemberTicket {
   member_id: number;
   ticket_id: number;
   amount: number;
+  nums: number;
   create_time: string;
 }
 
+//声明 bill_record 表
+export interface BillRecordTable {
+  id: number;
+  bill_type: number;
+  pay_type: number;
+  amount: number;
+  create_time: string;
+  name: string;
+  phone: string;
+  nickname: string;
+  ticket_name: string;
+  count:string;
+}
+//声明 bill_record 表
+export interface BillRecord {
+  member_id: number;
+  user_id: number;
+  ticket_id: number;
+  amount: number;
+  count: number;
+  bill_type: number;
+}
 
 
 
@@ -176,10 +210,10 @@ export type InvoiceForm = {
 };
 export type ProjectForm = {
   id: string | Number;
-  projectName: string;
-  consumptionType: string | Number;
-  consumptionNumber: string | Number;
-  price: number | string;
+  ticket_id: number;
+  consumptionType: string ;
+  consumptionNumber:  number;
+  amount: number;
 };
 export type InventoryData = {
   id: string;

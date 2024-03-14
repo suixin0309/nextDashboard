@@ -11,11 +11,14 @@ import {
   ManagementTable,
   MemberTable,
   Member,
-  Ticket
+  Ticket,
+  BillRecord,
+  BillRecordTable,
+  ProjectForm,
+  MemberTicket
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
-
 export async function fetchRevenue() {
   // Add noStore() here to prevent the response from being cached.
   // This is equivalent to in fetch(..., {cache: 'no-store'}).
@@ -96,7 +99,7 @@ export async function fetchCardData() {
 }
 
 const ITEMS_PER_PAGE = 8;
-export async function fetchFilteredInvoices(
+export async function fetchFilteredInvoices1(
   query: string,
   currentPage: number,
 ) {
@@ -132,7 +135,7 @@ export async function fetchFilteredInvoices(
   }
 }
 
-export async function fetchInvoicesPages(query: string) {
+export async function fetchInvoicesPages1(query: string) {
   noStore();
   try {
     const count = await sql`SELECT COUNT(*)
@@ -231,6 +234,110 @@ export async function fetchFilteredCustomers(query: string) {
     throw new Error('Failed to fetch customer table.');
   }
 }
+
+//会员余额充值
+export async function recharge(params:BillRecord) {
+  noStore();
+  try {
+    const data = await sql`
+    UPDATE t_member
+    SET amount = amount + ${params.amount* 100}
+    WHERE id = ${params.member_id}
+    RETURNING amount;
+    `;
+    //插入一条充值记录到bill_record表
+    await sql`
+    INSERT INTO bill_record
+    (member_id, amount, bill_type, user_id)
+    VALUES
+    (${params.member_id}, ${params.amount*100}, ${params.bill_type}, ${params.user_id})
+    `;
+    // await sql`
+    // INSERT INTO bill_record
+    // (member_id, amount, bill_type, user_id)
+    // VALUES
+    // (${params.member_id}, ${params.amount}, ${params.bill_type}, ${params.user_id})
+    // `;
+    return data.rows[0];
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to recharge.');
+  }
+}
+//创建消费账单
+export async function createOrders(memberId:string,params:ProjectForm[]) {
+  // console.log(middleware)
+  let userId=1;
+  try {
+    //插入一条充值记录到bill_record表
+    params.forEach(async (param) => {
+      let isNext = true;
+      if (param.consumptionType == '4') {
+        await sql`
+          UPDATE t_member
+          SET amount = amount - ${param.amount * 100}
+          WHERE id = ${memberId}
+          RETURNING amount;
+          `;
+      } else if (param.consumptionType == '1') {
+        //项目充值
+        //查询是否有项目充值记录
+        const data = await sql`
+        SELECT * FROM member_ticket WHERE member_id = ${memberId} AND ticket_id = ${param.ticket_id};
+        `;
+        let result=data.rows;
+        if (result.length) {
+          //修改项目充值记录+
+          await sql`
+            UPDATE member_ticket
+            SET nums = nums + ${param.consumptionNumber}
+            WHERE member_id = ${memberId} AND ticket_id = ${param.ticket_id};
+            `;
+        } else {
+          //插入项目充值记录
+          await sql`
+            INSERT INTO member_ticket
+            (member_id, ticket_id,amount, nums)
+            VALUES
+            (${memberId}, ${param.ticket_id}, ${param.amount * 100},${param.consumptionNumber})
+            `;
+        }
+      } else if (param.consumptionType == '2') {
+        //项目充值消费
+        //查询是否有项目充值记录
+        const data = await sql`
+          SELECT * FROM member_ticket WHERE member_id = ${memberId} AND ticket_id = ${param.ticket_id};
+          `;
+        let result=data.rows;
+        if (result.length&&result[0].nums>=param.consumptionNumber) {
+          //修改项目充值记录
+          await sql`
+              UPDATE member_ticket
+              SET nums = nums - ${param.consumptionNumber}
+              WHERE member_id = ${memberId} AND ticket_id = ${param.ticket_id};
+              `;
+        } else {
+          isNext = false;
+        }
+      }
+      if (isNext) {
+        await sql`
+        INSERT INTO bill_record
+        (member_id, amount, bill_type,ticket_id, user_id,count)
+        VALUES
+        (${memberId}, ${param.amount * 100}, ${param.consumptionType},${param.ticket_id}, ${userId}, ${param.consumptionNumber})
+        `;
+      }
+      return isNext
+    });
+    // return data.rows[0];
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to recharge.');
+  }
+  // revalidatePath('/dashboard/orders');//清除缓存，重新验证，获取数据
+  // redirect('/dashboard/orders'); //重定向
+}
 //获取员工列表
 export async function fetchFilteredManagements(
   query: string,
@@ -244,6 +351,7 @@ export async function fetchFilteredManagements(
         t_user.id,
         t_user.login_name,
         t_user.nickname,
+        t_user.status,
         t_user.create_time
       FROM t_user
       WHERE
@@ -274,6 +382,27 @@ console.log(1213)
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch total number of fetchMangementsPages.');
+  }
+}
+export async function fetchManagementById(id: number) {
+  noStore();
+  try {
+    const data = await sql<Management>`
+      SELECT
+        t_user.id,
+        t_user.login_name,
+        t_user.nickname,
+        t_user.status
+      FROM t_user
+      WHERE t_user.id = ${id};
+    `;
+    const invoice = data.rows.map((invoice) => ({
+      ...invoice,
+    }));
+    return invoice[0];
+  } catch (err) {
+    console.error('Database Error:', err);
+    throw new Error('Failed to fetch all fetchManagementById.');
   }
 }
 //会员
@@ -324,8 +453,6 @@ export async function fetchMembersPages(query: string) {
 }
 //获取会员详情
 export async function fetchMemberById(id: string) {
-  console.log('fetchMemberById1234567432145')
-  console.log(id)
   noStore();
   try {
     const data = await sql<Member>`
@@ -333,6 +460,7 @@ export async function fetchMemberById(id: string) {
         t_member.id,
         t_member.name,
         t_member.phone,
+        t_member.amount,
         t_member.address,
         t_member.remarks
       FROM t_member
@@ -348,16 +476,79 @@ export async function fetchMemberById(id: string) {
     throw new Error('Failed to fetch all fetchMemberById.');
   }
 }
-export async function getUser(email: string) {
+export async function getUser(loginName: string) {
   noStore();
   try {
-    const user = await sql`SELECT * FROM users WHERE email=${email}`;
-    return user.rows[0] as User;
-  } catch (error) {
-    console.error('Failed to fetch user:', error);
+    const user = await sql<User>`SELECT * FROM t_user WHERE login_name = ${loginName}`;
+    return user.rows[0];
+} catch (error) {
     throw new Error('Failed to fetch user.');
+}
+}
+//获取账单记录
+export async function fetchFilteredInvoices(
+  query: string,
+  currentPage: number,
+) {
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  try {
+    const invoices = await sql<BillRecordTable>`
+      SELECT
+        bill_record.id,
+        bill_record.bill_type,
+        bill_record.pay_type,
+        bill_record.amount,
+        bill_record.create_time,
+        t_member.name,
+        t_member.phone,
+        t_user.nickname,
+        ticket.ticket_name,
+        bill_record.count
+      FROM bill_record
+      JOIN t_member ON bill_record.member_id = t_member.id
+      JOIN t_user ON bill_record.user_id = t_user.id
+      LEFT JOIN ticket ON bill_record.ticket_id = ticket.id
+      WHERE
+        t_member.name ILIKE ${`%${query}%`} OR
+        t_member.phone ILIKE ${`%${query}%`} OR
+        bill_record.amount::text ILIKE ${`%${query}%`} OR
+        bill_record.create_time::text ILIKE ${`%${query}%`}
+      ORDER BY bill_record.create_time DESC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    return invoices.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch fetchFilteredInvoices.');
   }
 }
+
+export async function fetchInvoicesPages(query: string) {
+  noStore();
+  try {
+    const count = await sql`SELECT COUNT(*)
+    FROM bill_record
+      JOIN t_member ON bill_record.member_id = t_member.id
+      JOIN t_user ON bill_record.user_id = t_user.id
+      LEFT JOIN ticket ON bill_record.pay_type = ticket.id
+    WHERE
+      t_member.name ILIKE ${`%${query}%`} OR
+      t_member.phone ILIKE ${`%${query}%`} OR
+      bill_record.amount::text ILIKE ${`%${query}%`} OR
+      bill_record.create_time::text ILIKE ${`%${query}%`}
+  `;
+
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of fetchInvoicesPages.');
+  }
+}
+
 
 //面板
 export async function fetchLatestMembers() {
@@ -409,14 +600,41 @@ export async function fetchProjectsPages(query: string) {
     WHERE
     ticket.ticket_name ILIKE ${`%${query}%`} 
   `;
-  console.log(count)
-    console.log('countpppppwppwpwppwpwp')
 //customers.date::text ILIKE ${`%${query}%`} OR
     const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
-    console.log(totalPages)
     return totalPages;
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch total number of prepaid_packagePages.');
+    throw new Error('Failed to fetch total number of fetchProjectsPages.');
+  }
+}
+export async function fetchProjects() {
+  noStore();
+  const enabled=1;
+  try {
+    const projects = await sql<Ticket>`
+      SELECT
+        ticket.id,
+        ticket.ticket_name,
+        ticket.price
+      FROM ticket
+      WHERE ticket.enabled = ${enabled}
+      ORDER BY ticket.ticket_name DESC
+    `;
+    return projects.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch ticket.');
+  }
+}
+//查询 member_ticket表里该会员的数据
+export async function fetchMemberTickets(memberId:string) {
+  noStore();
+  try {
+    const projects = await sql<MemberTicket>`SELECT * FROM member_ticket WHERE member_id = ${memberId}`;
+    return projects.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch ticket.');
   }
 }

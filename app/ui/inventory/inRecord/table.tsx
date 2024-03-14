@@ -1,5 +1,5 @@
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
-import { fetchFilteredInvoices } from '@/app/lib/data';
+import { fetchFilteredInvoices1 } from '@/app/lib/data';
 export default async function InventoryListTable({
   query,
   currentPage,
@@ -7,7 +7,7 @@ export default async function InventoryListTable({
   query: string;
   currentPage: number;
 }) {
-  const invoices = await fetchFilteredInvoices(query, currentPage);
+  const invoices = await fetchFilteredInvoices1(query, currentPage);
   // const goRecharge = (id: string) => {
   // }
 

@@ -1,5 +1,15 @@
 import { Revenue } from './definitions';
-
+const bill_type:any={
+  '0':'余额充值',
+  '1':'项目充值',
+  '2':'充值项目消费',
+  '3':'单次项目消费',
+  '4':'余额消费',
+}
+export const billTypeToName=(type:string)=>{
+  let name=bill_type[type]
+  return name;
+}
 export const formatCurrency = (amount: number) => {
   return (amount / 100).toLocaleString('ZH', {
     style: 'currency',
@@ -14,11 +24,14 @@ export const formatDateToLocal = (
 ) => {
   const date = new Date(dateStr);
   const options: Intl.DateTimeFormatOptions = {
+    minute: 'numeric',
+    hour: 'numeric',
     day: 'numeric',
     month: 'short',
     year: 'numeric',
   };
   const formatter = new Intl.DateTimeFormat(locale, options);
+  // let time=date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate()+" "+date.getHours()+":"+date.getMinutes();
   return formatter.format(date);
 };
 

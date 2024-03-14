@@ -33,7 +33,6 @@ export const { auth, signIn, signOut } = NextAuth({
                         result = null;
                         return null
                     }
-                    console.log(user);
                     const passwordMatch = await bcrypt.compare(password, user.login_password);
                     if (passwordMatch) {
                         console.log('password match');
@@ -44,7 +43,7 @@ export const { auth, signIn, signOut } = NextAuth({
                         return user;
                     }
                 }
-                return null
+                return result
             }
         }),
     ]

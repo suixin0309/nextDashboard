@@ -4,7 +4,7 @@ import { PopoverDelete } from '@/app/ui/button';
 import { Popover, PopoverTrigger, PopoverContent, User } from "@nextui-org/react";
 import { EditInventory, InRecord, OutRecord } from '@/app/ui/inventory/modal';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
-import { fetchFilteredInvoices } from '@/app/lib/data';
+import { fetchFilteredInvoices1 } from '@/app/lib/data';
 import { Avatar, Button, Card, CardBody, CardFooter, CardHeader } from "@nextui-org/react";
 
 import Link from 'next/link';
@@ -15,7 +15,7 @@ export default async function InventoryListTable({
   query: string;
   currentPage: number;
 }) {
-  const invoices = await fetchFilteredInvoices(query, currentPage);
+  const invoices = await fetchFilteredInvoices1(query, currentPage);
   // const goRecharge = (id: string) => {
   // }
 

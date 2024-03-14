@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { UpdateCustomer, DeleteInvoice } from '@/app/ui/customers/buttons';
 import {CustomerRecharge} from '@/app/ui/customers/modal';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
-import { fetchFilteredInvoices } from '@/app/lib/data';
+import { fetchFilteredInvoices1 } from '@/app/lib/data';
 import Link from 'next/link';
 export default async function CustomersTable({
   query,
@@ -11,7 +11,7 @@ export default async function CustomersTable({
   query: string;
   currentPage: number;
 }) {
-  const invoices = await fetchFilteredInvoices(query, currentPage);
+  const invoices = await fetchFilteredInvoices1(query, currentPage);
   // const goRecharge = (id: string) => {
   // }
 

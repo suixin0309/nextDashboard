@@ -1,9 +1,10 @@
 'use client';
 
-import { CustomerField, InvoiceForm, ProjectForm, ConsumptionMenu } from '@/app/lib/definitions';
+import { Ticket, Member, ProjectForm, ConsumptionMenu } from '@/app/lib/definitions';
+import { billTypeToName, formatCurrency } from '@/app/lib/utils';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import {
-  CurrencyDollarIcon,
+  CurrencyYenIcon,
   UserCircleIcon,
   PhoneIcon,
   BookmarkSquareIcon
@@ -13,48 +14,77 @@ import { Button } from '@/app/ui/button';
 import { updateInvoice } from '@/app/lib/actions'
 import { useFormState } from 'react-dom';
 import { useState, useCallback } from 'react';
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 export default function EditInvoiceForm({
   customer,
-  customers,
+  projects,
 }: {
-  customer: InvoiceForm;
-  customers: CustomerField[];
+  customer: Member;
+  projects: Ticket[];
 }) {
   const initialState = { message: null, error: {} }
-  const updateInvoiceWithId = updateInvoice.bind(null, customer.id);
-  const [state, dispatch] = useFormState(updateInvoiceWithId, initialState);
+  // const updateInvoiceWithId = updateInvoice.bind(null, customer.id);
+  // const [state, dispatch] = useFormState(updateInvoiceWithId, initialState);
   const initProjects: Array<ProjectForm> = [{
     id: 1,
-    projectName: '',
-    price: 0,
+    ticket_id: projects[0].id,
+    amount: 0,
     consumptionNumber: 1,
-    consumptionType: 1,
+    consumptionType: ConsumptionMenu[0].id,
   }]
-  const [projects, setProjects] = useState(initProjects)
+  const [projectList, setProjectLst] = useState(initProjects)
   //add 项目
   const addProject = () => {
     const project: ProjectForm = {
-      id: projects.length + 1,
-      projectName: '',
-      price: 0,
+      id: projectList.length + 1,
+      ticket_id: projects[0].id,
+      amount: 0,
       consumptionNumber: 1,
-      consumptionType: 1,
+      consumptionType: ConsumptionMenu[0].id,
     }
-    projects.push(project)
-    setProjects([...projects])
+    projectList.push(project)
+    setProjectLst([...projectList])
   }
   //delete 项目
   const deleteProject = (id: any) => {
     // Add your delete project logic here
-    const newProjects = projects.filter((project: ProjectForm) => {
+    const newProjects = projectList.filter((project: ProjectForm) => {
       if (project?.id !== id) {
         return project
       }
     })
-    setProjects([...newProjects])
+    setProjectLst([...newProjects])
+  }
+  const actionFun =async () => {
+    let data = {
+      member_id: Number(customer.id),
+      user_id: 1,
+      projectList
+    }
+    try {
+      const response = await fetch('/api/submitOrders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data }),
+      });
+      console.log(response)
+      console.log("response1232242")
+      if (response.ok) {
+        //刷新会员列表
+        revalidatePath('/dashboard/orders');//清除缓存，重新验证，获取数据
+        redirect('/dashboard/orders'); //重定向
+      } else {
+        console.error('Failed to submit data');
+      }
+    } catch (error) {
+      console.error('Error submitting data', error);
+    }
   }
   return (
-    <form action={dispatch}>
+    <form>
       <div className="rounded-md bg-gray-50 p-4 md:p-6 mt-6 grid grid-cols-1 gap-6 md:grid-cols-1 lg:grid-cols-2">
         {/* Customer Name */}
         <div className="mb-4">
@@ -64,7 +94,7 @@ export default function EditInvoiceForm({
           <div className="relative">
             <input
               className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              defaultValue={customer.customer_id}
+              defaultValue={customer.name}
               maxLength={10}
               readOnly
             >
@@ -79,7 +109,7 @@ export default function EditInvoiceForm({
           <div className="relative">
             <input
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              defaultValue={customer.customer_id}
+              defaultValue={customer.phone}
               maxLength={13}
               type="tel"
               readOnly
@@ -88,7 +118,6 @@ export default function EditInvoiceForm({
             <PhoneIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
         </div>
-        {/* customer Amount */}
         <div className="mb-4">
           <label htmlFor="amount" className="mb-2 block text-sm font-medium">
             余额
@@ -100,12 +129,12 @@ export default function EditInvoiceForm({
                 name="amount"
                 type="number"
                 step="0.01"
-                defaultValue={customer.amount}
+                defaultValue={customer.amount / 100}
                 placeholder="0.00"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
                 readOnly
               />
-              <CurrencyDollarIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+              <CurrencyYenIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
           </div>
         </div>
@@ -146,23 +175,25 @@ export default function EditInvoiceForm({
           </div>
         </div>
         {
-          projects.map(item => {
+          projectList.map(item => {
             // grid grid-cols-3 gap-4
             return <div key={item.id.toString()} className="rounded-md bg-gray-50 pl-4 pr-4 pb-2  items-center grid grid-cols-10 gap-2">
               <div className="col-span-2">
                 <div className="">
                   <select
                     id="customer"
-                    name="customerId"
+                    name="consumptionType"
+                    onChange={(e) => item.consumptionType=e.target.value}
+                    defaultValue={item.consumptionType}
                     className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2  text-sm  placeholder:text-gray-500"
                   >
                     <option value="" disabled>
                       选择消费类型
                     </option>
                     {ConsumptionMenu.map((item: any) => (
-                      <option key={item.id} value={item.id}>
+                       <option key={item.id} value={item.id}>
                         {item.name}
-                      </option>
+                      </option> 
                     ))}
                   </select>
                 </div>
@@ -171,15 +202,17 @@ export default function EditInvoiceForm({
                 <div className="relative">
                   <select
                     id="customer"
-                    name="customerId"
+                    name="ticket_id"
+                    onChange={(e) => item.ticket_id=Number(e.target.value)}
+                    defaultValue={item.ticket_id}
                     className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
                   >
                     <option value="" disabled>
                       选择消费项目
                     </option>
-                    {customers.map((customer) => (
+                    {projects.map((customer) => (
                       <option key={customer.id} value={customer.id}>
-                        {customer.name}
+                        {customer.ticket_name}
                       </option>
                     ))}
                   </select>
@@ -189,6 +222,10 @@ export default function EditInvoiceForm({
               <div className=" col-span-2">
                 <div className="">
                   <input
+                    name='consumptionNumber'
+                    type='number'
+                    onChange={(e) => item.consumptionNumber=Number(e.target.value)}
+                    defaultValue={item.consumptionNumber}
                     className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 text-sm outline-2 placeholder:text-gray-500"
                   >
                   </input>
@@ -197,11 +234,13 @@ export default function EditInvoiceForm({
               <div className=" col-span-2">
                 <div className="relative">
                   <input
+                    name='amount'
                     type='number'
+                    onChange={(e) => item.amount=Number(e.target.value)}
+                    defaultValue={item.amount}
                     className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-8 text-sm outline-2 placeholder:text-gray-500"
                   />
-                  <CurrencyDollarIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
-
+                  <CurrencyYenIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
                 </div>
               </div>
               <div className='col-span-1'>
@@ -221,7 +260,7 @@ export default function EditInvoiceForm({
         >
           取消
         </Link>
-        <Button type="submit">提交</Button>
+        <Button color="primary" onClick={actionFun}>提交</Button>
       </div>
     </form>
   );

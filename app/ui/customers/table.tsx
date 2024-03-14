@@ -2,8 +2,9 @@ import Image from 'next/image';
 import { UpdateCustomer, DeleteInvoice } from '@/app/ui/customers/buttons';
 import { CustomerRecharge } from '@/app/ui/customers/modal';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
-import { fetchFilteredMembers } from '@/app/lib/data';
+import { fetchFilteredMembers,recharge } from '@/app/lib/data';
 import Link from 'next/link';
+import { Member } from '@/app/lib/definitions';
 export default async function CustomersTable({
   query,
   currentPage,
@@ -14,7 +15,6 @@ export default async function CustomersTable({
   const invoices = await fetchFilteredMembers(query, currentPage);
   // const goRecharge = (id: string) => {
   // }
-
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
@@ -90,8 +90,9 @@ export default async function CustomersTable({
                     </Link>
                     {/* <div
                       className="text-blue-600 underline hover:text-blue-500"
-                      onClick={() => goRecharge(invoice.id)}
+                      onClick={() => rechargeFun(Number(invoice.id),1000)}
                     >充值</div> */}
+                    {/* <CustomerRecharge memberAmountRecharge={(amount:number)=>rechargeFun(Number(invoice.id),amount)} customerId={invoice.id} /> */}
                     <CustomerRecharge customerId={invoice.id} />
                     <div
                       className="text-blue-600 cursor-pointer underline hover:text-blue-500"

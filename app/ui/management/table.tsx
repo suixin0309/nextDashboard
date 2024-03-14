@@ -1,5 +1,6 @@
 import Image from 'next/image';
-import { UpdateCustomer, DeleteInvoice } from '@/app/ui/customers/buttons';
+import { UpdateManagement } from '@/app/ui/customers/buttons';
+import { PencilIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { fetchFilteredManagements } from '@/app/lib/data';
 
@@ -32,7 +33,8 @@ export default async function OrdersTable({
                   创建时间
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium text-center">
-                  创建人
+                  {/* 创建人 */}
+                  状态
                 </th>
                 <th scope="col" className="relative py-3 pl-6 pr-3">
                   <span className="">操作</span>
@@ -69,19 +71,18 @@ export default async function OrdersTable({
                   </td>
                   <td className="whitespace-nowrap px-3 text-center pr-3">
                     <div className="flex justify-center">
-                      张三
-                      {/* <UpdateCustomer id={invoice.id} /> */}
-                      {/* <DeleteInvoice id={invoice.id} /> */}
+                      {invoice.status==1 ? '启用' : '停用'}
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-3 text-center pr-3">
                     <div className='flex items-center gap-2 '>
-                      <div
+                      {/* <div
                         className="text-blue-600 cursor-pointer underline hover:text-blue-500"
-                      >重置</div>
-                      <div
+                      >重置</div> */}
+                      {/* <div
                         className="text-blue-600 cursor-pointer underline hover:text-blue-500"
-                      >停用</div>
+                      >停用</div> */}
+                      <UpdateManagement id={invoice.id} />
                     </div>
                   </td>
                 </tr>

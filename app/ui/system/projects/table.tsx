@@ -1,8 +1,9 @@
-import Image from 'next/image';
-import { UpdateCustomer, DeleteInvoice } from '@/app/ui/customers/buttons';
-import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
-import { fetchFilteredInvoices,fetchFilteredProjects } from '@/app/lib/data';
 
+import { UpdateProject } from '@/app/ui/customers/modal';
+import { UpdateCustomer, DeleteInvoice } from '@/app/ui/customers/buttons';
+import { formatCurrency } from '@/app/lib/utils';
+import { fetchFilteredProjects } from '@/app/lib/data';
+import {updateProjectStatus} from '@/app/lib/actions'
 export default async function ProjectsTable({
   query,
   currentPage,
@@ -11,7 +12,12 @@ export default async function ProjectsTable({
   currentPage: number;
 }) {
   const invoices = await fetchFilteredProjects(query, currentPage);
-
+  console.log(invoices)
+  const changeStatus = (id: number, status: number) => {
+    console.log(id, status);
+    
+    updateProjectStatus(id, Number(status))
+  }
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
@@ -28,10 +34,10 @@ export default async function ProjectsTable({
                 {/* <th scope="col" className="px-3 py-5 font-medium">
                   时间
                 </th> */}
-                {/* <th scope="col" className="px-3 py-5 font-medium text-center">
-                  创建人
-                </th> */}
-                <th scope="col" className="relative py-3 pl-6 pr-3">
+                <th scope="col" className="px-3 py-5 font-medium text-center">
+                  状态
+                </th>
+                <th scope="col" className="relative py-3 pl-6 pr-3 text-center">
                   <span className="">操作</span>
                 </th>
               </tr>
@@ -49,13 +55,17 @@ export default async function ProjectsTable({
                     {formatCurrency(invoice.price)}
 
                   </td>
-                  {/* <td className="whitespace-nowrap px-3 py-3">
-                    {formatDateToLocal(invoice.created_time)}
-                  </td> */}
+                  <td className="whitespace-nowrap px-3 py-3 text-center">
+                    {invoice.enabled==1?'启用':'停用'}
+                  </td>
                   <td className="whitespace-nowrap px-3 text-center pr-3">
                     <div className="flex justify-center">
+                      
+                      {/* <span onClick={()=>changeStatus(invoice.id,invoice.enabled)}>
+                      {invoice.enabled==1?'停用':'启用'}
+                      </span> */}
                       {/* 张三 */}
-                      <UpdateCustomer id={invoice.id} />
+                      <UpdateProject project={invoice} />
                       {/* <DeleteInvoice id={invoice.id} /> */}
                     </div>
                   </td>
