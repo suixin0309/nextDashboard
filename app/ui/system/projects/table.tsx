@@ -3,7 +3,6 @@ import { UpdateProject } from '@/app/ui/customers/modal';
 import { UpdateCustomer, DeleteInvoice } from '@/app/ui/customers/buttons';
 import { formatCurrency } from '@/app/lib/utils';
 import { fetchFilteredProjects } from '@/app/lib/data';
-import {updateProjectStatus} from '@/app/lib/actions'
 export default async function ProjectsTable({
   query,
   currentPage,
@@ -12,12 +11,6 @@ export default async function ProjectsTable({
   currentPage: number;
 }) {
   const invoices = await fetchFilteredProjects(query, currentPage);
-  console.log(invoices)
-  const changeStatus = (id: number, status: number) => {
-    console.log(id, status);
-    
-    updateProjectStatus(id, Number(status))
-  }
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
@@ -61,12 +54,7 @@ export default async function ProjectsTable({
                   <td className="whitespace-nowrap px-3 text-center pr-3">
                     <div className="flex justify-center">
                       
-                      {/* <span onClick={()=>changeStatus(invoice.id,invoice.enabled)}>
-                      {invoice.enabled==1?'停用':'启用'}
-                      </span> */}
-                      {/* 张三 */}
                       <UpdateProject project={invoice} />
-                      {/* <DeleteInvoice id={invoice.id} /> */}
                     </div>
                   </td>
                 </tr>

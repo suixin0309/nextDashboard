@@ -6,7 +6,7 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDi
 import {
   CurrencyYenIcon
 } from '@heroicons/react/24/outline';
-import { createProject, updateProject, createManagement } from '@/app/lib/actions';
+import { createProject, updateProject, createMaterialType,updateMaterialType } from '@/app/lib/actions';
 import { useFormState } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { formatCurrency } from '@/app/lib/utils';
@@ -271,9 +271,8 @@ export function UpdateProject({ project }: { project: any }) {
 }
 export function CreateInventoryType() {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  // const [isOpen, setIsOpen] = useState(false);
-  const actionFun = async () => {
-  }
+  const initialState = { message: null, errors: {} }
+  const [state, dispatch] = useFormState(createMaterialType, initialState);
   return (
     <>
       <div
@@ -283,10 +282,6 @@ export function CreateInventoryType() {
         <span className="hidden md:block">添加类型</span>{' '}
         <PlusIcon className="h-5 md:ml-4" />
       </div>
-      {/* <div className="text-blue-600 cursor-pointer underline hover:text-blue-500" onClick={onOpen}>
-        充值
-      </div> */}
-      {/* <button className="text-blue-600 underline hover:text-blue-500" onClick={onOpen}>充值</button> */}
       <Modal
         isOpen={isOpen}
         onClose={onClose}
@@ -296,30 +291,116 @@ export function CreateInventoryType() {
             <>
               <ModalHeader className="flex flex-col gap-1">添加耗材类型</ModalHeader>
               <ModalBody>
+              <form action={dispatch}>
                 <div className="rounded-md bg-gray-50 md:p-6 grid grid-cols-1 gap-6 grid-cols-1">
                   {/* Customer Name */}
                   <div className="mb-4">
-                    <label htmlFor="customer" className="mb-2 block text-sm font-medium">
+                    <label className="mb-2 block text-sm font-medium">
                       类型名称
                     </label>
                     <div className="relative">
                       <input
                         className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
                         maxLength={30}
+                        name='typeName'
                       >
                       </input>
                       {/* <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" /> */}
                     </div>
                   </div>
                 </div>
+                <div className="mt-6 flex justify-end gap-4 mr-4 mb-4">
+                      <span
+                        className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
+                      >
+                        取消
+                      </span>
+                      <Button type="submit" color='primary' onPress={onClose}>确定</Button>
+                    </div>
+                </form>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                {/* <Button color="danger" variant="light" onPress={onClose}>
                   取消
                 </Button>
                 <Button color="primary" onPress={onClose}>
                   确定
+                </Button> */}
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+    </>
+
+  );
+}
+export function UpdateInventoryType({inventoryType}:{inventoryType:any}) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [typeState, setTypeState] = useState(inventoryType.status);
+  const initialState = { message: null, errors: {} }
+  const updateMaterialTypeWithId = updateMaterialType.bind(null, inventoryType.id);
+  const [state, dispatch] = useFormState(updateMaterialTypeWithId, initialState)
+  return (
+    <>
+      <div
+        onClick={onOpen}
+        className="flex h-10 items-center rounded-lg  px-4 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+      >
+        <PencilIcon className="w-5" />
+      </div>
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">编辑耗材类型</ModalHeader>
+              <ModalBody>
+              <form action={dispatch}>
+                <div className="rounded-md bg-gray-50 md:p-6 grid grid-cols-1 gap-6 grid-cols-1">
+                  <div className="mb-4">
+                    <label className="mb-2 block text-sm font-medium">
+                      类型名称
+                    </label>
+                    <div className="relative">
+                      <input
+                        className="peer block w-full rounded-md border border-gray-200 py-2 pl-2 text-sm outline-2 placeholder:text-gray-500"
+                        maxLength={30}
+                        name='typeName'
+                        defaultValue={inventoryType.name}
+                      >
+                      </input>
+                      {/* <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" /> */}
+                    </div>
+                  </div>
+                  <div className="mb-4">
+                        <label htmlFor="customer" className="mb-2 block text-sm font-medium">
+                          状态
+                        </label>
+                        <div className="relative">
+                          <Switch name='status' defaultSelected={typeState == 1 ? true : false} aria-label="Automatic updates" value={typeState} />
+                        </div>
+                      </div>
+                </div>
+                <div className="mt-6 flex justify-end gap-4 mr-4 mb-4">
+                      <span
+                        className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
+                      >
+                        取消
+                      </span>
+                      <Button type="submit" color='primary' onPress={onClose}>确定</Button>
+                    </div>
+                </form>
+              </ModalBody>
+              <ModalFooter>
+                {/* <Button color="danger" variant="light" onPress={onClose}>
+                  取消
                 </Button>
+                <Button color="primary" onPress={onClose}>
+                  确定
+                </Button> */}
               </ModalFooter>
             </>
           )}

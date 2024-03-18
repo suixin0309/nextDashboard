@@ -15,7 +15,9 @@ import {
   BillRecord,
   BillRecordTable,
   ProjectForm,
-  MemberTicket
+  MemberTicket,
+  MaterialTable,
+  MaterialTypeTable
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -548,7 +550,52 @@ export async function fetchInvoicesPages(query: string) {
     throw new Error('Failed to fetch total number of fetchInvoicesPages.');
   }
 }
-
+//根据material表的数据 ，获取耗材的过滤列表
+export async function fetchFilteredMaterials(
+  query: string,
+  currentPage: number
+){
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  try {
+    const materials = await sql<MaterialTable>`
+      SELECT
+        material.id,
+        material.name,
+        material.nums,
+        material.create_time,
+        material.remarks,
+        material_type.type_name
+      FROM material
+      JOIN material_type ON material.type_id = material_type.id
+      WHERE
+        material.name ILIKE ${`%${query}%`} OR
+        material_type.type_name ILIKE ${`%${query}%`} 
+      ORDER BY material.create_time DESC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+    return materials.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch fetchFilteredMaterials.');
+  }
+}
+//根据material表的数据 ，获取耗材的分页列表
+export async function fetchMaterialsPages(query: string) {
+  noStore();
+  try {
+    const count = await sql`SELECT COUNT(*)
+    FROM material
+    WHERE
+      material.name ILIKE ${`%${query}%`} 
+  `;
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of fetchMaterialsPages.');
+  }
+}
 
 //面板
 export async function fetchLatestMembers() {
@@ -636,5 +683,66 @@ export async function fetchMemberTickets(memberId:string) {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch ticket.');
+  }
+}
+//根据material_type表，获取耗材类型的过滤列表
+export async function fetchFilteredMaterialTypes(
+  query: string,
+  currentPage: number
+){
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  try {
+    const materialTypes = await sql<MaterialTypeTable>`
+      SELECT
+        material_type.id,
+        material_type.name,
+        material_type.status,
+        material_type.create_time
+      FROM material_type
+      WHERE
+        material_type.name ILIKE ${`%${query}%`} 
+      ORDER BY material_type.create_time DESC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+    return materialTypes.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+  }
+}
+
+//根据material_type表，获取耗材类型的分页列表
+export async function fetchMaterialTypesPages(query: string) {
+  noStore();
+  try {
+    const count = await sql`SELECT COUNT(*)
+    FROM material_type
+    WHERE
+      material_type.name ILIKE ${`%${query}%`} 
+  `;
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of fetchMaterialTypesPages.');
+  }
+}
+export async function fetchMaterialTypes() {
+  noStore();
+  const enabled=1;
+  try {
+    const types = await sql<MaterialTypeTable>`
+      SELECT
+        material_type.id,
+        material_type.type_name,
+        material_type.status
+      FROM material_type
+      WHERE material_type.status = ${enabled}
+      ORDER BY material_type.type_name DESC
+    `;
+    return types.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch fetchMaterialTypes.');
   }
 }

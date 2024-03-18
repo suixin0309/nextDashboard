@@ -4,18 +4,15 @@ import { InvoicesTable } from '@/app/lib/definitions';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import React, { useState } from 'react';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure } from '@nextui-org/react'
-import { createInvoice } from '@/app/lib/actions'
+import { createInvoice, createMaterial } from '@/app/lib/actions'
 import { useFormState } from 'react-dom';
 import {
   CurrencyYenIcon
 } from '@heroicons/react/24/outline';
-export function CreateInventory() {
+export function CreateInventory({materialTypeMap}:{materialTypeMap:any}) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const initialState = { message: null, errors: {} }
-  const [state, dispatch] = useFormState(createInvoice, initialState);
-  // const [isOpen, setIsOpen] = useState(false);
-  const actionFun = async () => {
-  }
+  const [state, dispatch] = useFormState(createMaterial, initialState);
   return (
     <>
       <div
@@ -25,10 +22,6 @@ export function CreateInventory() {
         <span className="hidden md:block">添加耗材</span>{' '}
         <PlusIcon className="h-5 md:ml-4" />
       </div>
-      {/* <div className="text-blue-600 cursor-pointer underline hover:text-blue-500" onClick={onOpen}>
-        添加耗材
-      </div> */}
-      {/* <button className="text-blue-600 underline hover:text-blue-500" onClick={onOpen}>充值</button> */}
       <Modal
         isOpen={isOpen}
         onClose={onClose}
@@ -49,6 +42,7 @@ export function CreateInventory() {
                         <input
                           className="peer block w-full rounded-md border border-gray-200 py-2 pl-4 text-sm outline-2 placeholder:text-gray-500"
                           maxLength={10}
+                          name='material_name'
                         >
                         </input>
                       </div>
@@ -60,15 +54,15 @@ export function CreateInventory() {
                       <div className="relative">
                         <select
                           id="customer"
-                          name="customerId"
+                          name="material_type"
                           className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-4 text-sm outline-2 placeholder:text-gray-500"
                         >
                           <option value="" disabled>
                             选择类型
                           </option>
-                          {[1, 2, 3, 4].map((customer) => (
-                            <option key={customer} value={customer}>
-                              {customer}
+                          {materialTypeMap.map((type:any) => (
+                            <option key={type.id} value={type.id}>
+                              {type.name}
                             </option>
                           ))}
                         </select>
@@ -83,30 +77,30 @@ export function CreateInventory() {
                           className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 text-sm outline-2 placeholder:text-gray-500"
                           maxLength={50}
                           type="text"
+                          name='remarks'
                         >
                         </input>
                       </div>
                     </div>
 
                   </div>
-                  {/* <div className="mt-6 flex justify-end gap-4">
-        <Link
-          href="/dashboard/customers"
-          className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
-        >
-          取消
-        </Link>
-        <Button type="submit">保存会员</Button>
-      </div> */}
+                  <div className="mt-6 flex justify-end gap-4">
+                    <Button color="danger" variant="light" onPress={onClose}>
+                      取消
+                    </Button>
+                    <Button type='submit' color="primary" onPress={onClose}>
+                      确定
+                    </Button>
+                  </div>
                 </form>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                {/* <Button color="danger" variant="light" onPress={onClose}>
                   取消
                 </Button>
                 <Button color="primary" onPress={onClose}>
                   确定
-                </Button>
+                </Button> */}
               </ModalFooter>
             </>
           )}

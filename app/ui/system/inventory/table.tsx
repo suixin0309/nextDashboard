@@ -1,16 +1,15 @@
 import Image from 'next/image';
-import { UpdateCustomer, DeleteInvoice } from '@/app/ui/customers/buttons';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
-import { fetchFilteredInvoices1 } from '@/app/lib/data';
-
-export default async function ProjectsTable({
+import { fetchFilteredMaterialTypes } from '@/app/lib/data';
+import { UpdateInventoryType } from '@/app/ui/customers/modal';
+export default async function MaterialTypesTable({
   query,
   currentPage,
 }: {
   query: string;
   currentPage: number;
 }) {
-  const invoices = await fetchFilteredInvoices1(query, currentPage);
+  const invoices = await fetchFilteredMaterialTypes(query, currentPage);
 
   return (
     <div className="mt-6 flow-root">
@@ -26,11 +25,11 @@ export default async function ProjectsTable({
                   时间
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium text-center">
-                  创建人
+                  状态
                 </th>
-                {/* <th scope="col" className="relative py-3 pl-6 pr-3">
+                <th scope="col" className="relative py-3 pl-6 pr-3 text-center">
                   <span className="">操作</span>
-                </th> */}
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white">
@@ -40,16 +39,19 @@ export default async function ProjectsTable({
                   className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
                 >
                   <td className="whitespace-nowrap px-3 py-3">
-                    {invoice.email}
+                    {invoice.name}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {formatDateToLocal(invoice.date)}
+                    {formatDateToLocal(invoice.create_time)}
                   </td>
                   <td className="whitespace-nowrap px-3 text-center pr-3">
                     <div className="flex justify-center">
-                      张三
-                      {/* <UpdateCustomer id={invoice.id} /> */}
-                      {/* <DeleteInvoice id={invoice.id} /> */}
+                      {invoice.status?'启用':'停用'}
+                    </div>
+                  </td>
+                  <td className="whitespace-nowrap px-3 text-center pr-3">
+                    <div className="flex justify-center">
+                      <UpdateInventoryType inventoryType={invoice} />
                     </div>
                   </td>
                 </tr>

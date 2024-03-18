@@ -253,6 +253,8 @@ export async function deleteInvoice(id: string) {
   }
   revalidatePath('/dashboard/invoices');
 }
+
+
 //系统管理
 //添加菜单项目
 const ProjectFormSchema = z.object({
@@ -267,7 +269,6 @@ const ProjectFormSchema = z.object({
   enabled: z.number(),
 });
 const CreateProject = ProjectFormSchema.omit({ id: true });
-const UpdateProject = ProjectFormSchema.omit({ id: true });
 export type ProjectState = {
   errors?: {
     ticket_name?: string[];
@@ -333,18 +334,77 @@ export async function updateProject(id: string, prevState: ProjectState, formDat
   revalidatePath('/dashboard/system/projects');//清除缓存，重新验证，获取数据
   redirect('/dashboard/system/projects'); //重定向
 }
-export async function updateProjectStatus(id: string | number, status: number) {
+//创建耗材类型
+// MaterialTypeTable
+const MaterialTypeFormSchema = z.object({
+  id: z.string(),
+  // managementId: z.string(),
+  name: z.string({
+    invalid_type_error: '必须提供类型名',
+  }),
+  status: z.number(),
+});
+const CreateMaterialType = MaterialTypeFormSchema.omit({ id: true });
+export type MaterialTypeState = {
+  errors?: {
+    name?: string[];
+    status?: string[];
+  };
+  message?: string | null;
+};
+export async function createMaterialType(prevState: MaterialTypeState, formData: FormData) {
+  const validatedFields = CreateMaterialType.safeParse({
+    name: formData.get('typeName'),
+    status: 1,
+  });
+  console.log(validatedFields)
+  //返回一个包含 asuccess或error字段的对象
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create createMaterialType.',
+    };
+  }
+  const { name } = validatedFields.data;
   try {
     await sql`
-    UPDATE ticket
-    SET enabled = ${status}
+    INSERT INTO material_type (type_name)
+    VALUES ( ${name})
+    `;
+  } catch (error) {
+    return {
+      message: 'Database error: ' + error,
+    }
+  }
+  revalidatePath('/dashboard/system/inventory');//清除缓存，重新验证，获取数据
+  redirect('/dashboard/system/inventory'); //重定向
+}
+export async function updateMaterialType(id: string, prevState: MaterialTypeState, formData: FormData) {
+  const validatedFields = CreateMaterialType.safeParse({
+    name: formData.get('typeName'),
+    status: formData.get('status') ? 1 : 0,
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Update updateMaterialType.',
+    };
+  }
+  const { name, status } = validatedFields.data;
+  try {
+    await sql`
+    UPDATE material_type
+    SET type_name = ${name}, status = ${status}
     WHERE id = ${id}
   `;
   } catch (error) {
     return {
-      message: 'updateProjectStatus error: ' + error,
+      message: 'Database error: ' + error,
     }
   }
+  revalidatePath('/dashboard/system/inventory');//清除缓存，重新验证，获取数据
+  redirect('/dashboard/system/inventory'); //重定向
 }
 //创建消费账单
 export async function createOrders(memberId: string, params: ProjectForm[]) {
@@ -417,6 +477,82 @@ export async function createOrders(memberId: string, params: ProjectForm[]) {
   }
   revalidatePath('/dashboard/orders');//清除缓存，重新验证，获取数据
   redirect('/dashboard/orders'); //重定向
+}
+//创建耗材 material
+const MaterialFormSchema = z.object({
+  id: z.string(),
+  // managementId: z.string(),
+  material_name: z.string({
+    invalid_type_error: '必须提供耗材名',
+  }),
+  material_type: z.string({
+    invalid_type_error: '必须提供耗材名字',
+  }),
+  remarks: z.string(),
+});
+const CreateMaterial = MaterialFormSchema.omit({ id: true });
+export type MaterialState = {
+  errors?: {
+    material_name?: string[];
+    material_type?: string[];
+  };
+  message?: string | null;
+};
+export async function createMaterial(prevState: MaterialState, formData: FormData) {
+  const validatedFields = CreateMaterial.safeParse({
+    material_name: formData.get('material_name'),
+    material_type: formData.get('material_type'),
+    remarks: formData.get('remarks'),
+  });
+  console.log(formData)
+  //返回一个包含 asuccess或error字段的对象
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create createMaterial.',
+    };
+  }
+  const { material_name, material_type ,remarks} = validatedFields.data;
+  try {
+    await sql`
+    INSERT INTO material (name,type_id,remarks)
+    VALUES ( ${material_name},${material_type},${remarks})
+    `;
+  } catch (error) {
+    return {
+      message: 'Database error: ' + error,
+    }
+  }
+  revalidatePath('/dashboard/inventory/list');//清除缓存，重新验证，获取数据
+  redirect('/dashboard/inventory/list'); //重定向
+}
+export async function updateMaterial(id: string, prevState: MaterialState, formData: FormData) {
+  const validatedFields = CreateMaterial.safeParse({
+    material_name: formData.get('material_name'),
+    material_type: formData.get('material_type'),
+    remarks: formData.get('remarks'),
+  });
+  //返回一个包含 asuccess或error字段的对象
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create updateMaterial.',
+    };
+  }
+  const { material_name, material_type ,remarks} = validatedFields.data;
+  try {
+    await sql`
+    UPDATE material
+    SET name = ${material_name}, type_id = ${material_type},remarks = ${remarks}
+    WHERE id = ${id}
+  `;
+  } catch (error) {
+    return {
+      message: 'Database error: ' + error,
+    }
+  }
+  revalidatePath('/dashboard/inventory/list');//清除缓存，重新验证，获取数据
+  redirect('/dashboard/inventory/list'); //重定向
 }
 //验证身份
 export async function authenticate(prevState: string | undefined, formData: FormData) {

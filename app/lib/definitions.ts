@@ -133,7 +133,15 @@ export interface BillRecord {
   count: number;
   bill_type: number;
 }
-
+//声明 material表
+export interface MaterialTable {
+  id: number;
+  name: string;
+  nums: number;
+  create_time: string;
+  type_name: string;
+  remarks: string;
+}
 
 
 ///////////
@@ -222,3 +230,10 @@ export type InventoryData = {
   type: string;
   status: 'pending' | 'paid';
 };
+//耗材类型表
+export type MaterialTypeTable = {
+  id: string;
+  name: string;
+  create_time: string;
+  status:number;
+}
