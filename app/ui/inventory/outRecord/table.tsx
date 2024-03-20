@@ -1,5 +1,5 @@
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
-import { fetchFilteredInRecords } from '@/app/lib/data';
+import { fetchFilteredOutRecords } from '@/app/lib/data';
 export default async function InventoryListTable({
   query,
   currentPage,
@@ -7,7 +7,7 @@ export default async function InventoryListTable({
   query: string;
   currentPage: number;
 }) {
-  const invoices = await fetchFilteredInRecords(query, currentPage);
+  const invoices = await fetchFilteredOutRecords(query, currentPage);
 
   return (
     <div className="mt-6 flow-root">
@@ -23,10 +23,7 @@ export default async function InventoryListTable({
                   耗材类型
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  入库数量
-                </th>
-                <th scope="col" className="px-3 py-5 font-medium">
-                  入库金额
+                  出库数量
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   记录人
@@ -52,9 +49,6 @@ export default async function InventoryListTable({
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {invoice.nums}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-3">
-                    {formatCurrency(invoice.price)}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     张三

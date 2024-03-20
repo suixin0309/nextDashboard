@@ -17,7 +17,8 @@ import {
   ProjectForm,
   MemberTicket,
   MaterialTable,
-  MaterialTypeTable
+  MaterialTypeTable,
+  InRecordsTable
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -565,6 +566,7 @@ export async function fetchFilteredMaterials(
         material.nums,
         material.create_time,
         material.remarks,
+        material.type_id,
         material_type.type_name
       FROM material
       JOIN material_type ON material.type_id = material_type.id
@@ -594,6 +596,105 @@ export async function fetchMaterialsPages(query: string) {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch total number of fetchMaterialsPages.');
+  }
+}
+//根据inrecords表的数据 ，获取耗材的过滤列表
+export async function fetchFilteredInRecords(
+  query: string,
+  currentPage: number
+){
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  try {
+    const inrecords = await sql<InRecordsTable>`
+      SELECT
+        inrecords.id,
+        inrecords.price,
+        inrecords.nums,
+        inrecords.create_time,
+        material.name,
+        material_type.type_name
+      FROM inrecords
+      JOIN material ON inrecords.material_id = material.id
+      JOIN material_type ON inrecords.material_type_id = material_type.id
+      WHERE
+        material.name ILIKE ${`%${query}%`} OR
+        inrecords.price::text ILIKE ${`%${query}%`} OR
+        inrecords.create_time::text ILIKE ${`%${query}%`}
+      ORDER BY inrecords.create_time DESC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+    return inrecords.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch fetchFilteredInRecords.');
+  }
+}
+//根据inrecords表的数据 ，获取耗材的分页列表
+export async function fetchInRecordsPages(query: string) {
+  noStore();
+  try {
+    const count = await sql`SELECT COUNT(*)
+    FROM inrecords
+      JOIN material ON inrecords.material_id = material.id
+    WHERE
+      material.name ILIKE ${`%${query}%`} OR
+      inrecords.price::text ILIKE ${`%${query}%`} OR
+      inrecords.create_time::text ILIKE ${`%${query}%`}
+  `;
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of fetchInRecordsPages.');
+  }
+}
+//根据outrecords表的数据 ，获取耗材的过滤列表
+export async function fetchFilteredOutRecords(
+  query: string,
+  currentPage: number
+){
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  try {
+    const outrecords = await sql<InRecordsTable>`
+      SELECT
+        outrecords.id,
+        outrecords.nums,
+        outrecords.create_time,
+        material.name,
+        material_type.type_name
+      FROM outrecords
+      JOIN material ON outrecords.material_id = material.id
+      JOIN material_type ON outrecords.material_type_id = material_type.id
+      WHERE
+        material.name ILIKE ${`%${query}%`} OR
+        outrecords.create_time::text ILIKE ${`%${query}%`}
+      ORDER BY outrecords.create_time DESC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+    return outrecords.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch fetchFilteredOutRecords.');
+  }
+}
+//根据outrecords表的数据获取耗材的分页列表
+export async function fetchOutRecordsPages(query: string) {
+  noStore();
+  try {
+    const count = await sql`SELECT COUNT(*)
+    FROM outrecords
+      JOIN material ON outrecords.material_id = material.id
+    WHERE
+      material.name ILIKE ${`%${query}%`} OR
+      outrecords.create_time::text ILIKE ${`%${query}%`}
+  `;
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of fetchOutRecordsPages.');
   }
 }
 
@@ -696,7 +797,7 @@ export async function fetchFilteredMaterialTypes(
     const materialTypes = await sql<MaterialTypeTable>`
       SELECT
         material_type.id,
-        material_type.name,
+        material_type.type_name,
         material_type.status,
         material_type.create_time
       FROM material_type

@@ -4,7 +4,7 @@ import { PopoverDelete } from '@/app/ui/button';
 import { Popover, PopoverTrigger, PopoverContent, User } from "@nextui-org/react";
 import { EditInventory, InRecord, OutRecord } from '@/app/ui/inventory/modal';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
-import { fetchFilteredMaterials } from '@/app/lib/data';
+import { fetchFilteredMaterials,fetchMaterialTypes } from '@/app/lib/data';
 import { Avatar, Button, Card, CardBody, CardFooter, CardHeader } from "@nextui-org/react";
 
 import Link from 'next/link';
@@ -16,6 +16,8 @@ export default async function InventoryListTable({
   currentPage: number;
 }) {
   const invoices = await fetchFilteredMaterials(query, currentPage);
+  const typesMap = await fetchMaterialTypes();
+  
   // const goRecharge = (id: string) => {
   // }
 console.log(invoices)
@@ -70,8 +72,8 @@ console.log(invoices)
                       className="text-blue-600 mr-2 cursor-pointer underline hover:text-blue-500"
                     >入库</span> */}
                     <div className=' flex gap-2'>
-                      <InRecord inventory={invoice} />
-                      <OutRecord inventory={invoice} />
+                      <InRecord typesMap={typesMap} inventory={invoice} />
+                      <OutRecord typesMap={typesMap} inventory={invoice} />
                     </div>
                     {/* <span
                       className="text-blue-600 cursor-pointer underline hover:text-blue-500"
@@ -117,7 +119,7 @@ console.log(invoices)
                       </Popover>
                       {/* <PopoverDelete>
                       </PopoverDelete> */}
-                      <EditInventory id={invoice.id} />
+                      <EditInventory typesMap={typesMap} id={invoice.id} />
                     </div>
                   </td>
                 </tr>

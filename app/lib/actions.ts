@@ -357,7 +357,6 @@ export async function createMaterialType(prevState: MaterialTypeState, formData:
     name: formData.get('typeName'),
     status: 1,
   });
-  console.log(validatedFields)
   //返回一个包含 asuccess或error字段的对象
   if (!validatedFields.success) {
     return {
@@ -504,7 +503,6 @@ export async function createMaterial(prevState: MaterialState, formData: FormDat
     material_type: formData.get('material_type'),
     remarks: formData.get('remarks'),
   });
-  console.log(formData)
   //返回一个包含 asuccess或error字段的对象
   if (!validatedFields.success) {
     return {
@@ -546,6 +544,112 @@ export async function updateMaterial(id: string, prevState: MaterialState, formD
     SET name = ${material_name}, type_id = ${material_type},remarks = ${remarks}
     WHERE id = ${id}
   `;
+  } catch (error) {
+    return {
+      message: 'Database error: ' + error,
+    }
+  }
+  revalidatePath('/dashboard/inventory/list');//清除缓存，重新验证，获取数据
+  redirect('/dashboard/inventory/list'); //重定向
+}
+//入库 material
+const InMaterialFormSchema = z.object({
+  id: z.string(),
+  nums: z.string({
+    invalid_type_error: '必须提供入库数量',
+  }),
+  price: z.string({
+    invalid_type_error: '必须提供入库价格',
+  }),
+  remarks: z.string(),
+  material_type: z.string(),
+});
+const outMaterialFormSchema = z.object({
+  id: z.string(),
+  nums: z.string({
+    invalid_type_error: '必须提供出库数量',
+  }),
+  remarks: z.string(),
+  material_type: z.string(),
+});
+const CreateInMaterial = InMaterialFormSchema.omit({ id: true });
+const CreateOutMaterial = outMaterialFormSchema.omit({ id: true });
+export type InMaterialState = {
+  errors?: {
+    nums?: string[];
+    price?: string[];
+  };
+  message?: string | null;
+};
+export type outMaterialState = {
+  errors?: {
+    nums?: string[];
+  };
+  message?: string | null;
+};
+export async function createInMaterial(id:number,prevState: InMaterialState, formData: FormData) {
+  const validatedFields = CreateInMaterial.safeParse({
+    nums: formData.get('nums'),
+    price: formData.get('price'),
+    material_type: formData.get('material_type'),
+    remarks: formData.get('remarks'),
+  });
+  //返回一个包含 asuccess或error字段的对象
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create createInMaterial.',
+    };
+  }
+  const { material_type,nums, price ,remarks} = validatedFields.data;
+  //accound_id?
+  const lastPrice = Number(price) * 100;
+  try {
+    await sql`
+    INSERT INTO inrecords (material_id,nums,price,material_type_id,remarks)
+    VALUES ( ${id},${nums},${lastPrice},${material_type},${remarks})
+    `;
+    await sql`
+          UPDATE material
+          SET nums = nums + ${nums}
+          WHERE id = ${id}
+          RETURNING nums;
+          `;
+  } catch (error) {
+    return {
+      message: 'Database error: ' + error,
+    }
+  }
+  revalidatePath('/dashboard/inventory/list');//清除缓存，重新验证，获取数据
+  redirect('/dashboard/inventory/list'); //重定向
+}
+export async function createOutMaterial(id:number,prevState: outMaterialState, formData: FormData) {
+  const validatedFields = CreateOutMaterial.safeParse({
+    nums: formData.get('nums'),
+    material_type: formData.get('material_type'),
+    remarks: formData.get('remarks'),
+  });
+  console.log(formData)
+  //返回一个包含 asuccess或error字段的对象
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create createOutMaterial.',
+    };
+  }
+  const { material_type,nums,remarks} = validatedFields.data;
+  //in_accound_id?
+  try {
+    await sql`
+    INSERT INTO outrecords (material_id,nums,material_type_id,remarks)
+    VALUES ( ${id},${nums},${material_type},${remarks})
+    `;
+    await sql`
+          UPDATE material
+          SET nums = nums - ${nums}
+          WHERE id = ${id}
+          RETURNING nums;
+          `;
   } catch (error) {
     return {
       message: 'Database error: ' + error,

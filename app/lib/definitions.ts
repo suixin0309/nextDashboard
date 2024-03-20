@@ -139,10 +139,23 @@ export interface MaterialTable {
   name: string;
   nums: number;
   create_time: string;
-  type_name: string;
   remarks: string;
+  type_id: string;
+  type_name: string;
+  accound_id: string;
 }
-
+//声明 innrecords表
+export interface InRecordsTable {
+  id: number;
+  name: string;
+  nums: number;
+  create_time: string;
+  remarks: string;
+  type_id: string;
+  type_name: string;
+  price: number;
+  accound_id: string;
+}
 
 ///////////
 
@@ -233,7 +246,7 @@ export type InventoryData = {
 //耗材类型表
 export type MaterialTypeTable = {
   id: string;
-  name: string;
+  type_name: string;
   create_time: string;
   status:number;
 }
