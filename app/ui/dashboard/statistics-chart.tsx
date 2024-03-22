@@ -3,7 +3,7 @@
 import { generateYAxis } from '@/app/lib/utils';
 import { CalendarIcon } from '@heroicons/react/24/outline';
 import { lusitana } from '@/app/ui/fonts';
-import { fetchRevenue } from '@/app/lib/data';
+import { fetchStatistics } from '@/app/lib/data';
 import { Pie } from '@antv/g2plot';
 import { useRef,useEffect } from 'react'
 
@@ -13,21 +13,23 @@ import { useRef,useEffect } from 'react'
 // https://www.chartjs.org/
 // https://airbnb.io/visx/
 
-export default async function StatisticsChart() {
+export default async function StatisticsChart({data}:{data:any}) {
   // const revenue = await fetchRevenue();
   const chartHeight = 250;
   // NOTE: comment in this code when you get to this point in the course
 
   // const { yAxisLabels, topLabel } = generateYAxis(revenue);
 
-  const data = [
-    { type: '分类一', value: 27 },
-    { type: '分类二', value: 25 },
-    { type: '分类三', value: 18 },
-    { type: '分类四', value: 15 },
-    { type: '分类五', value: 10 },
-    { type: '其他', value: 5 },
-  ];
+  // const data = [
+  //   { type: '分类一', value: 27 },
+  //   { type: '分类二', value: 25 },
+  //   { type: '分类三', value: 18 },
+  //   { type: '分类四', value: 15 },
+  //   { type: '分类五', value: 10 },
+  //   { type: '其他', value: 5 },
+  // ];
+  // const data=await fetchStatistics();
+  console.log(data)
   const containerRef = useRef<HTMLDivElement>(null);
   let piePlot:any;
   useEffect(()=>{

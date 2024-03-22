@@ -132,6 +132,7 @@ export interface BillRecord {
   amount: number;
   count: number;
   bill_type: number;
+  month: string;
 }
 //声明 material表
 export interface MaterialTable {

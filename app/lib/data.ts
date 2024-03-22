@@ -29,39 +29,30 @@ export async function fetchRevenue() {
   try {
     // Artificially delay a response for demo purposes.
     // Don't do this in production :)
-
-    // console.log('Fetching revenue data...');
     // await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    const data = await sql<Revenue>`SELECT * FROM revenue`;
-
-    // console.log('Data fetch completed after 3 seconds.');
-
-    return data.rows;
+    // group by month
+    // const data = await sql<Revenue>`SELECT * FROM revenue`;
+    const data = await sql<BillRecord>`
+    select to_char(create_time, 'YYYY-MM-DD') as month, sum(amount) as amount 
+    from bill_record 
+    where bill_type = 1 or bill_type = 3 
+    group by month;`
+    // FROM bill_record 
+    // where bill_type = 1 or bill_type = 3 
+    // group by date_trunc('month', create_time AT TIME ZONE 'UTC') 
+    // order by month`;
+    let revenue: any = data.rows.map((row) => {
+      let item = {
+        month: row.month,
+        revenue: row.amount / 100
+      }
+      return item
+    })
+    return revenue;
+    // return data.rows;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch revenue data.');
-  }
-}
-
-export async function fetchLatestInvoices() {
-  noStore();
-  try {
-    const data = await sql<LatestInvoiceRaw>`
-      SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
-      ORDER BY invoices.date DESC
-      LIMIT 5`;
-
-    const latestInvoices = data.rows.map((invoice) => ({
-      ...invoice,
-      amount: formatCurrency(invoice.amount),
-    }));
-    return latestInvoices;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch the latest invoices.');
   }
 }
 
@@ -71,23 +62,34 @@ export async function fetchCardData() {
     // You can probably combine these into a single SQL query
     // However, we are intentionally splitting them to demonstrate
     // how to initialize multiple queries in parallel with JS.
-    const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`;
-    const customerCountPromise = sql`SELECT COUNT(*) FROM customers`;
-    const invoiceStatusPromise = sql`SELECT
-         SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid",
-         SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
-         FROM invoices`;
-
+    const newIntoShop = await sql`SELECT COUNT(*) 
+    FROM t_member 
+    where DATE_TRUNC('month', create_time AT TIME ZONE 'UTC') = DATE_TRUNC('month', CURRENT_DATE  AT TIME ZONE 'UTC')`;
+    const IntoShop = await sql`SELECT COUNT(DISTINCT member_id) AS count
+    FROM bill_record
+    WHERE EXTRACT(YEAR FROM create_time) = EXTRACT(YEAR FROM CURRENT_DATE)
+      AND EXTRACT(MONTH FROM create_time) = EXTRACT(MONTH FROM CURRENT_DATE);
+    `;
+    const currentd = await sql`
+    select sum(amount) as count
+    from bill_record
+    where bill_type in (1, 3) and create_time > date_trunc('month', current_date)
+    `;
+    const currentInvoiceCountData = await sql`
+    select sum(price) as count
+    from inrecords
+    where create_time > date_trunc('month', current_date)
+    `;
     const data = await Promise.all([
-      invoiceCountPromise,
-      customerCountPromise,
-      invoiceStatusPromise,
+      IntoShop,
+      newIntoShop,
+      currentd,
+      currentInvoiceCountData,
     ]);
-
     const numberOfInvoices = Number(data[0].rows[0].count ?? '0');
     const numberOfCustomers = Number(data[1].rows[0].count ?? '0');
-    const totalPaidInvoices = formatCurrency(data[2].rows[0].paid ?? '0');
-    const totalPendingInvoices = formatCurrency(data[2].rows[0].pending ?? '0');
+    const totalPaidInvoices = formatCurrency(data[2].rows[0].count ?? '0');
+    const totalPendingInvoices = formatCurrency(data[3].rows[0].count ?? '0');
 
     return {
       numberOfCustomers,
@@ -100,7 +102,23 @@ export async function fetchCardData() {
     throw new Error('Failed to fetch card data.');
   }
 }
-
+export async function fetchStatistics() {
+  noStore();
+  try {
+    const data = await sql<BillRecord>`
+    select ticket_name type, CAST(COUNT(*) AS INTEGER) as value
+    from bill_record b
+    join t_member m on b.member_id = m.id
+    join ticket t on b.ticket_id=t.id
+    where b.create_time > date_trunc('month', current_date)
+    group by ticket_name
+    `
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch fetchStatistics data.');
+  }
+}
 const ITEMS_PER_PAGE = 8;
 export async function fetchFilteredInvoices1(
   query: string,
@@ -239,12 +257,12 @@ export async function fetchFilteredCustomers(query: string) {
 }
 
 //会员余额充值
-export async function recharge(params:BillRecord) {
+export async function recharge(params: BillRecord) {
   noStore();
   try {
     const data = await sql`
     UPDATE t_member
-    SET amount = amount + ${params.amount* 100}
+    SET amount = amount + ${params.amount * 100}
     WHERE id = ${params.member_id}
     RETURNING amount;
     `;
@@ -253,7 +271,7 @@ export async function recharge(params:BillRecord) {
     INSERT INTO bill_record
     (member_id, amount, bill_type, user_id)
     VALUES
-    (${params.member_id}, ${params.amount*100}, ${params.bill_type}, ${params.user_id})
+    (${params.member_id}, ${params.amount * 100}, ${params.bill_type}, ${params.user_id})
     `;
     // await sql`
     // INSERT INTO bill_record
@@ -268,9 +286,9 @@ export async function recharge(params:BillRecord) {
   }
 }
 //创建消费账单
-export async function createOrders(memberId:string,params:ProjectForm[]) {
+export async function createOrders(memberId: string, params: ProjectForm[]) {
   // console.log(middleware)
-  let userId=1;
+  let userId = 1;
   try {
     //插入一条充值记录到bill_record表
     params.forEach(async (param) => {
@@ -288,7 +306,7 @@ export async function createOrders(memberId:string,params:ProjectForm[]) {
         const data = await sql`
         SELECT * FROM member_ticket WHERE member_id = ${memberId} AND ticket_id = ${param.ticket_id};
         `;
-        let result=data.rows;
+        let result = data.rows;
         if (result.length) {
           //修改项目充值记录+
           await sql`
@@ -311,8 +329,8 @@ export async function createOrders(memberId:string,params:ProjectForm[]) {
         const data = await sql`
           SELECT * FROM member_ticket WHERE member_id = ${memberId} AND ticket_id = ${param.ticket_id};
           `;
-        let result=data.rows;
-        if (result.length&&result[0].nums>=param.consumptionNumber) {
+        let result = data.rows;
+        if (result.length && result[0].nums >= param.consumptionNumber) {
           //修改项目充值记录
           await sql`
               UPDATE member_ticket
@@ -378,8 +396,8 @@ export async function fetchMangementsPages(query: string) {
       t_user.login_name ILIKE ${`%${query}%`} OR
       t_user.nickname ILIKE ${`%${query}%`} 
   `;
-//customers.date::text ILIKE ${`%${query}%`} OR
-console.log(1213)
+    //customers.date::text ILIKE ${`%${query}%`} OR
+    console.log(1213)
     const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
     return totalPages;
   } catch (error) {
@@ -446,7 +464,7 @@ export async function fetchMembersPages(query: string) {
       t_member.name ILIKE ${`%${query}%`} OR
       t_member.phone ILIKE ${`%${query}%`} 
   `;
-//customers.date::text ILIKE ${`%${query}%`} OR
+    //customers.date::text ILIKE ${`%${query}%`} OR
     const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
     return totalPages;
   } catch (error) {
@@ -484,9 +502,9 @@ export async function getUser(loginName: string) {
   try {
     const user = await sql<User>`SELECT * FROM t_user WHERE login_name = ${loginName}`;
     return user.rows[0];
-} catch (error) {
+  } catch (error) {
     throw new Error('Failed to fetch user.');
-}
+  }
 }
 //获取账单记录
 export async function fetchFilteredInvoices(
@@ -555,7 +573,7 @@ export async function fetchInvoicesPages(query: string) {
 export async function fetchFilteredMaterials(
   query: string,
   currentPage: number
-){
+) {
   noStore();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
   try {
@@ -602,7 +620,7 @@ export async function fetchMaterialsPages(query: string) {
 export async function fetchFilteredInRecords(
   query: string,
   currentPage: number
-){
+) {
   noStore();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
   try {
@@ -653,7 +671,7 @@ export async function fetchInRecordsPages(query: string) {
 export async function fetchFilteredOutRecords(
   query: string,
   currentPage: number
-){
+) {
   noStore();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
   try {
@@ -702,7 +720,9 @@ export async function fetchOutRecordsPages(query: string) {
 export async function fetchLatestMembers() {
   noStore();
   try {
-    const data = await sql<Member>`SELECT * FROM t_member ORDER BY create_time DESC LIMIT 5`;
+    const data = await sql<Member>`SELECT * 
+    FROM t_member 
+    ORDER BY update_time DESC LIMIT 5`;
     const latestMembers = data.rows.map((member) => ({
       ...member,
       amount: formatCurrency(member.amount),
@@ -748,7 +768,7 @@ export async function fetchProjectsPages(query: string) {
     WHERE
     ticket.ticket_name ILIKE ${`%${query}%`} 
   `;
-//customers.date::text ILIKE ${`%${query}%`} OR
+    //customers.date::text ILIKE ${`%${query}%`} OR
     const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
     return totalPages;
   } catch (error) {
@@ -758,7 +778,7 @@ export async function fetchProjectsPages(query: string) {
 }
 export async function fetchProjects() {
   noStore();
-  const enabled=1;
+  const enabled = 1;
   try {
     const projects = await sql<Ticket>`
       SELECT
@@ -776,7 +796,7 @@ export async function fetchProjects() {
   }
 }
 //查询 member_ticket表里该会员的数据
-export async function fetchMemberTickets(memberId:string) {
+export async function fetchMemberTickets(memberId: string) {
   noStore();
   try {
     const projects = await sql<MemberTicket>`SELECT * FROM member_ticket WHERE member_id = ${memberId}`;
@@ -790,7 +810,7 @@ export async function fetchMemberTickets(memberId:string) {
 export async function fetchFilteredMaterialTypes(
   query: string,
   currentPage: number
-){
+) {
   noStore();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
   try {
@@ -830,7 +850,7 @@ export async function fetchMaterialTypesPages(query: string) {
 }
 export async function fetchMaterialTypes() {
   noStore();
-  const enabled=1;
+  const enabled = 1;
   try {
     const types = await sql<MaterialTypeTable>`
       SELECT

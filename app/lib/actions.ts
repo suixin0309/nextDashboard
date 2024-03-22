@@ -662,6 +662,7 @@ export async function createOutMaterial(id:number,prevState: outMaterialState, f
 export async function authenticate(prevState: string | undefined, formData: FormData) {
   try {
     const user = await signIn('credentials', formData);
+    return user;
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {

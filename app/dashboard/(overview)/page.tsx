@@ -5,7 +5,9 @@ import LatestInvoices from '@/app/ui/dashboard/latest-invoices';
 import { lusitana } from '@/app/ui/fonts';
 import { Suspense } from 'react';
 import { RevenueChartSkeleton, LatestInvoicesSkeleton, CardsSkeleton } from '@/app/ui/skeletons';
+import { fetchStatistics } from '@/app/lib/data';
 export default async function Page() {
+  const statisticsData=await fetchStatistics();
   return (
     <main>
       {/* <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
@@ -19,7 +21,7 @@ export default async function Page() {
         </div>
         <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-1">
         <Suspense fallback={<LatestInvoicesSkeleton />}>
-          <StatisticsChart />
+          <StatisticsChart data={statisticsData} />
         </Suspense>
         </div>
         

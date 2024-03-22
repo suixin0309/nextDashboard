@@ -5,6 +5,10 @@ export const authConfig = {
         signIn: '/login',
     },
     callbacks: {
+        // async session({ session, token, user }) {
+        //     session.user = user;
+        //     return session;
+        // },
         //验证请求是否有权通过
         authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user;
