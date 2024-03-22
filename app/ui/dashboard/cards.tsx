@@ -20,7 +20,7 @@ export default async function CardWrapper() {
       {/* NOTE: comment in this code when you get to this point in the course */}
 
       <Card title="当月营业额" value={totalPaidInvoices} type="collected" />
-      <Card title="当月成本" value={totalPendingInvoices} type="pending" />
+      <Card title="当月采购" value={totalPendingInvoices} type="pending" />
       <Card title="当月进客" value={numberOfInvoices} type="invoices" />
       <Card
         title="当月新客"
