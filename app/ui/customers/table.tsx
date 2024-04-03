@@ -73,7 +73,7 @@ export default async function CustomersTable({
                   </td>
 
                   <td className="whitespace-nowrap px-3 py-3">
-                    张三
+                    小红
                     {/* <InvoiceStatus status={invoice.status} /> */}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">

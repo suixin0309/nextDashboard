@@ -103,11 +103,11 @@ export default async function OrdersTable({
                     {invoice.email}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    张三
+                    小红
                     {/* <InvoiceStatus status={invoice.status} /> */}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    张三
+                    小红
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {formatCurrency(invoice.amount)}
@@ -119,7 +119,7 @@ export default async function OrdersTable({
                   </td>
                   <td className="whitespace-nowrap px-3 text-center pr-3">
                     <div className="flex justify-center">
-                      张三
+                      小红
                       {/* <UpdateCustomer id={invoice.id} /> */}
                       {/* <DeleteInvoice id={invoice.id} /> */}
                     </div>

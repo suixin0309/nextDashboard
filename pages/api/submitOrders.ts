@@ -1,7 +1,6 @@
 // /pages/api/submitData.ts
 
 import { NextApiRequest, NextApiResponse } from 'next';
-// import { createOrders } from '../../app/lib/actions';
 import { createOrders } from '../../app/lib/data';
  
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

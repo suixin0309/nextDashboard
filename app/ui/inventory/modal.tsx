@@ -118,13 +118,6 @@ export function EditInventory({typesMap, id }: { typesMap:MaterialTypeTable[],id
   }
   return (
     <>
-      {/* <div
-        onClick={onOpen}
-        className="flex h-10 items-center rounded-lg bg-blue-600 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-      >
-        <span className="hidden md:block">编辑耗材</span>{' '}
-        <PlusIcon className="h-5 md:ml-4" />
-      </div> */}
       <div className="text-blue-600 cursor-pointer underline hover:text-blue-500" onClick={onOpen}>
         编辑
       </div>
@@ -136,7 +129,7 @@ export function EditInventory({typesMap, id }: { typesMap:MaterialTypeTable[],id
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">添加耗材</ModalHeader>
+              <ModalHeader className="flex flex-col gap-1">编辑耗材</ModalHeader>
               <ModalBody>
                 <form action={dispatch}>
                   <div className="rounded-md bg-gray-50 p-4 md:p-6 mt-6 grid grid-cols-1 gap-6 md:grid-cols-1 lg:grid-cols-2">
@@ -166,9 +159,9 @@ export function EditInventory({typesMap, id }: { typesMap:MaterialTypeTable[],id
                           <option value="" disabled>
                             选择类型
                           </option>
-                          {[1, 2, 3, 4].map((customer) => (
-                            <option key={customer} value={customer}>
-                              {customer}
+                          {typesMap.map((type:any) => (
+                            <option key={type.id} value={type.id}>
+                              {type.type_name}
                             </option>
                           ))}
                         </select>
@@ -325,6 +318,7 @@ export function InRecord({ inventory ,typesMap}: { inventory: MaterialTable,type
                   </div>
                   <div className="mt-6 flex justify-end gap-4 mr-4 mb-4">
                       <span
+                        onClick={onClose}
                         className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
                       >
                         取消
@@ -444,6 +438,7 @@ export function OutRecord({ inventory ,typesMap}: { inventory: MaterialTable,typ
                   </div>
                   <div className="mt-6 flex justify-end gap-4 mr-4 mb-4">
                       <span
+                        onClick={onClose}
                         className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
                       >
                         取消

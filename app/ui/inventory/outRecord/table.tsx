@@ -51,7 +51,7 @@ export default async function InventoryListTable({
                     {invoice.nums}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    张三
+                    小红
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {formatDateToLocal(invoice.create_time)}

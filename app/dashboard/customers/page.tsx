@@ -6,7 +6,8 @@ import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
 import { fetchMembersPages } from '@/app/lib/data';
- 
+import {auth} from "@/auth";
+
 export default async function Page({
     searchParams,
 }:{
@@ -15,9 +16,13 @@ export default async function Page({
         page?: string;
     }
 }) {
-    const query=searchParams?.query||'';
-    const currentPage=Number(searchParams?.page)||1;
-    const totalPages=await fetchMembersPages(query);
+  const query=searchParams?.query||'';
+  const currentPage=Number(searchParams?.page)||1;
+  // 从session里获取user员工的id
+  const session = await auth();
+  const user = session?.user?.id;
+  const totalPages=await fetchMembersPages(query);
+
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">

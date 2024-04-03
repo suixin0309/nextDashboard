@@ -36,11 +36,9 @@ export const { auth, signIn, signOut } = NextAuth({
                     const passwordMatch = await bcrypt.compare(password, user.login_password);
                     if (passwordMatch) {
                         console.log('password match');
-                        result = user;
-                        // if (typeof window !== 'undefined') {
-                        //     localStorage.setItem('userInfo', JSON.stringify(result));
-                        // }
-                        return user;
+                        const session = {id: user.id, name: user.login_name, email: user.email};
+                        result=session;
+                        return session;
                     }
                 }
                 return result

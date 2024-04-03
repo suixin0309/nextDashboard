@@ -73,7 +73,7 @@ console.log(invoices)
                     >入库</span> */}
                     <div className=' flex gap-2'>
                       <InRecord typesMap={typesMap} inventory={invoice} />
-                      <OutRecord typesMap={typesMap} inventory={invoice} />
+                      {invoice.nums?<OutRecord typesMap={typesMap} inventory={invoice} />:<span className='text-gray-400'>出库</span>}
                     </div>
                     {/* <span
                       className="text-blue-600 cursor-pointer underline hover:text-blue-500"

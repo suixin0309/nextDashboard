@@ -74,7 +74,6 @@ export async function createManagement(prevState: ManagementState, formData: For
     INSERT INTO t_user (login_name,login_password, nickname)
     VALUES ( ${loginName},${pwd},${nickName})
     `;
-
   } catch (error) {
     return {
       message: 'Database error: ' + error,
@@ -82,7 +81,6 @@ export async function createManagement(prevState: ManagementState, formData: For
   }
   revalidatePath('/dashboard/management');//清除缓存，重新验证，获取数据
   redirect('/dashboard/management'); //重定向
-
 }
 export async function updateManagement(id: number, prevState: ManagementState, formData: FormData) {
   const validatedFields = CreateManagement.safeParse({
@@ -98,7 +96,6 @@ export async function updateManagement(id: number, prevState: ManagementState, f
     };
   }
   const { nickName, loginName, status, pwdReset } = validatedFields.data;
-  let sqlstr = '';
   if (pwdReset) {
     let initPwd = '111111';
     let pwd = bcrypt.hashSync(initPwd, 5);
@@ -137,19 +134,15 @@ const MemberFormSchema = z.object({
   name: z.string({
     invalid_type_error: '必须提供会员姓名',
   }),
-  phone: z.string({
-    invalid_type_error: '必须提供员工联系方式',
-  }),
+  phone: z.string(),
   address: z.string(),
   remarks: z.string(),
   date: z.string(),
 });
 const CreateMember = MemberFormSchema.omit({ id: true, date: true });
-const UpdateMember = MemberFormSchema.omit({ id: true, date: true });
 export type MemberState = {
   errors?: {
     name?: string[];
-    phone?: string[];
   };
   message?: string | null;
 };
@@ -182,7 +175,37 @@ export async function createMember(prevState: MemberState, formData: FormData) {
   }
   revalidatePath('/dashboard/customers');//清除缓存，重新验证，获取数据
   redirect('/dashboard/customers'); //重定向
+}
+export async function updateMember(id: string,prevState: MemberState, formData: FormData) {
+  const validatedFields = CreateMember.safeParse({
+    name: formData.get('name'),
+    phone: formData.get('phone'),
+    address: formData.get('address'),
+    remarks: formData.get('remarks'),
+  });
+  //返回一个包含 asuccess或error字段的对象
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Update data.',
+    };
+  }
+  const { name, phone, address, remarks } = validatedFields.data;
+  const date = new Date().toISOString().split('T')[0];
+  try {
+    await sql`
+    UPDATE t_member
+    SET name = ${name}, phone = ${phone},address = ${address},remarks = ${remarks}
+    WHERE id = ${id}
+    `;
 
+  } catch (error) {
+    return {
+      message: 'Database error: ' + error,
+    }
+  }
+  revalidatePath('/dashboard/customers');//清除缓存，重新验证，获取数据
+  redirect('/dashboard/customers'); //重定向
 }
 export async function createInvoice(prevState: State, formData: FormData) {
   const validatedFields = CreateInvoice.safeParse({
@@ -259,7 +282,6 @@ export async function deleteInvoice(id: string) {
 //添加菜单项目
 const ProjectFormSchema = z.object({
   id: z.string(),
-  // managementId: z.string(),
   ticket_name: z.string({
     invalid_type_error: '必须提供项目名',
   }),

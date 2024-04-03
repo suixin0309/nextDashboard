@@ -311,6 +311,7 @@ export function CreateInventoryType() {
                 </div>
                 <div className="mt-6 flex justify-end gap-4 mr-4 mb-4">
                       <span
+                        onClick={() => onClose()}
                         className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
                       >
                         取消
@@ -369,7 +370,7 @@ export function UpdateInventoryType({inventoryType}:{inventoryType:any}) {
                         className="peer block w-full rounded-md border border-gray-200 py-2 pl-2 text-sm outline-2 placeholder:text-gray-500"
                         maxLength={30}
                         name='typeName'
-                        defaultValue={inventoryType.name}
+                        defaultValue={inventoryType.type_name}
                       >
                       </input>
                       {/* <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" /> */}
@@ -386,6 +387,7 @@ export function UpdateInventoryType({inventoryType}:{inventoryType:any}) {
                 </div>
                 <div className="mt-6 flex justify-end gap-4 mr-4 mb-4">
                       <span
+                        onClick={() => onClose()}
                         className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
                       >
                         取消
