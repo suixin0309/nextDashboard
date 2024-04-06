@@ -10,7 +10,7 @@ import { createProject, updateProject, createMaterialType,updateMaterialType } f
 import { useFormState } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { formatCurrency } from '@/app/lib/utils';
-export function CustomerRecharge({ memberAmountRecharge, customerId }: { memberAmountRecharge: (amount: number) => void, customerId: String }) {
+export function CustomerRecharge({ customerId: String }) {
   // export function CustomerRecharge({customerId,rechargeAction }: { customerId: String,rechargeAction: (params:any) => void }) {
 
   const router = useRouter();

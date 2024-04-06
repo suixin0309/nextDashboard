@@ -22,6 +22,9 @@ import {
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
+import {auth} from "@/auth";
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 export async function fetchRevenue() {
   noStore();
   try {
@@ -207,39 +210,6 @@ export async function fetchCustomers() {
   }
 }
 
-export async function fetchFilteredCustomers(query: string) {
-  noStore();
-  try {
-    const data = await sql<CustomersTableType>`
-		SELECT
-		  customers.id,
-		  customers.name,
-		  customers.email,
-		  customers.image_url,
-		  COUNT(invoices.id) AS total_invoices,
-		  SUM(CASE WHEN invoices.status = 'pending' THEN invoices.amount ELSE 0 END) AS total_pending,
-		  SUM(CASE WHEN invoices.status = 'paid' THEN invoices.amount ELSE 0 END) AS total_paid
-		FROM customers
-		LEFT JOIN invoices ON customers.id = invoices.customer_id
-		WHERE
-		  customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`}
-		GROUP BY customers.id, customers.name, customers.email, customers.image_url
-		ORDER BY customers.name ASC
-	  `;
-
-    const customers = data.rows.map((customer) => ({
-      ...customer,
-      total_pending: formatCurrency(customer.total_pending),
-      total_paid: formatCurrency(customer.total_paid),
-    }));
-
-    return customers;
-  } catch (err) {
-    console.error('Database Error:', err);
-    throw new Error('Failed to fetch customer table.');
-  }
-}
 
 //会员余额充值
 export async function recharge(params: BillRecord) {
@@ -265,9 +235,10 @@ export async function recharge(params: BillRecord) {
   }
 }
 //创建消费账单
-export async function createOrders(memberId: string, params: ProjectForm[]) {
-  let userId = 1;
+export async function createOrders(memberId: string,createId:string, params: ProjectForm[]) {
+  // noStore();
   try {
+  let userId =createId?createId:1;
     //插入一条充值记录到bill_record表
     params.forEach(async (param) => {
       let isNext = true;
@@ -314,7 +285,9 @@ export async function createOrders(memberId: string, params: ProjectForm[]) {
         VALUES
         (${memberId}, ${param.amount * 100}, ${param.consumptionType},${param.ticket_id}, ${userId}, ${param.consumptionNumber})`;
       }
-      return isNext
+      // revalidatePath('/dashboard/orders');//清除缓存，重新验证，获取数据
+  // redirect('/dashboard/orders'); //重定向
+      return [];
     });
   } catch (error) {
     console.error('Database Error:', error);
@@ -486,6 +459,7 @@ export async function fetchFilteredInvoices(
       WHERE
         t_member.name ILIKE ${`%${query}%`} OR
         t_member.phone ILIKE ${`%${query}%`} OR
+        t_user.nickname ILIKE ${`%${query}%`} OR
         bill_record.amount::text ILIKE ${`%${query}%`} OR
         bill_record.create_time::text ILIKE ${`%${query}%`}
       ORDER BY bill_record.create_time DESC

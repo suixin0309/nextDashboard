@@ -19,30 +19,38 @@ import clsx from 'clsx';
 import { Accordion, AccordionItem, divider } from "@nextui-org/react";
 // Map of links to display in the side navigation.
 // Depending on the size of the application, this would be stored in a database.
+import { useSession } from "next-auth/react"
+// 从session里获取user员工的id
+
 const links = [
-  { name: '面板', href: '/dashboard', icon: ChartBarSquareIcon },
-  { name: '会员管理', href: '/dashboard/customers', icon: UserGroupIcon },
-  { name: '账单记录', href: '/dashboard/orders', icon: BookmarkIcon },
-  { name: '员工管理', href: '/dashboard/management', icon: UserIcon },
+  { name: '面板', href: '/dashboard', icon: ChartBarSquareIcon,auth:1 },
+  { name: '会员管理', href: '/dashboard/customers', icon: UserGroupIcon,auth:2 },
+  { name: '账单记录', href: '/dashboard/orders', icon: BookmarkIcon,auth:2  },
+  { name: '员工管理', href: '/dashboard/management', icon: UserIcon ,auth:1 },
   {
     name: '耗材管理',
     href: '/dashboard/inventory',
     icon: ArchiveBoxIcon,
+    auth:2 ,
     children: [
       {
         name: '耗材管理列表',
         href: '/dashboard/inventory/list',
         icon: QueueListIcon,
+        auth:2 ,
       },
       {
         name: '入库列表',
         href: '/dashboard/inventory/inRecord',
         icon: ArrowRightStartOnRectangleIcon,
+        auth:2 ,
       },
+      
       {
         name: '出库列表',
         href: '/dashboard/inventory/outRecord',
         icon: ArrowRightEndOnRectangleIcon,
+        auth:2 ,
       },
     ]
   },
@@ -50,15 +58,18 @@ const links = [
     name: '系统管理',
     href: '/dashboard/system',
     icon: Cog6ToothIcon,
+    auth:2 ,
     children: [
       {
         name: '菜单项目管理',
         href: '/dashboard/system/projects',
         icon: BookmarkSquareIcon,
+        auth:2 ,
       }, {
         name: '耗材类型管理',
         href: '/dashboard/system/inventory',
         icon: BookmarkSquareIcon,
+        auth:2 ,
       }
     ]
   },
@@ -66,11 +77,26 @@ const links = [
 
 export default function NavLinks() {
   const pathname = usePathname();
-  console.log(pathname);
+  const session = useSession()?.data;
+let user = session?.user?.id;
+if(user){
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('user', user);
+  }
+}else{
+  if (typeof window !== 'undefined') {
+    let user1=localStorage.getItem('user');
+    user=user1?user1:'1';
+  }
+}
+  let lateLinks=links;
+if(user&&Number(user)!=1){
+   lateLinks=links.filter((link)=>link.auth==2)
+}
   return (
     <>
       <div className=''>
-        {links.map((link) => {
+        {lateLinks.map((link) => {
           const LinkIcon = link.icon;
           if (link.children) {
             return (

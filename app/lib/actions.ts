@@ -138,6 +138,7 @@ const MemberFormSchema = z.object({
   address: z.string(),
   remarks: z.string(),
   date: z.string(),
+  // create_id: z.string(),
 });
 const CreateMember = MemberFormSchema.omit({ id: true, date: true });
 export type MemberState = {
@@ -427,78 +428,7 @@ export async function updateMaterialType(id: string, prevState: MaterialTypeStat
   revalidatePath('/dashboard/system/inventory');//清除缓存，重新验证，获取数据
   redirect('/dashboard/system/inventory'); //重定向
 }
-//创建消费账单
-export async function createOrders(memberId: string, params: ProjectForm[]) {
-  let userId = 1;
-  try {
-    //插入一条充值记录到bill_record表
-    params.forEach(async (param) => {
-      let isNext = true;
-      if (param.consumptionType == '4') {
-        await sql`
-          UPDATE t_member
-          SET amount = amount - ${param.amount * 100}
-          WHERE id = ${memberId}
-          RETURNING amount;
-          `;
-      } else if (param.consumptionType == '1') {
-        //项目充值
-        //查询是否有项目充值记录
-        const data = await sql`
-        SELECT * FROM member_ticket WHERE member_id = ${memberId} AND ticket_id = ${param.ticket_id};
-        `;
-        let result=data.rows[0];
-        if (result.length) {
-          //修改项目充值记录+
-          await sql`
-            UPDATE member_ticket
-            SET nums = nums + ${param.consumptionNumber}
-            WHERE member_id = ${memberId} AND ticket_id = ${param.ticket_id};
-            `;
-        } else {
-          //插入项目充值记录
-          await sql`
-            INSERT INTO member_ticket
-            (member_id, ticket_id,amount, nums)
-            VALUES
-            (${memberId}, ${param.ticket_id}, ${param.amount * 100},${param.consumptionNumber})
-            `;
-        }
-      } else if (param.consumptionType == '2') {
-        //项目充值消费
-        //查询是否有项目充值记录
-        const data = await sql`
-          SELECT * FROM member_ticket WHERE member_id = ${memberId} AND ticket_id = ${param.ticket_id};
-          `;
-        let result=data.rows[0];
-        if (result.length&&result.nums>=param.consumptionNumber) {
-          //修改项目充值记录
-          await sql`
-              UPDATE member_ticket
-              SET nums = nums - ${param.consumptionNumber}
-              WHERE member_id = ${memberId} AND ticket_id = ${param.ticket_id};
-              `;
-        } else {
-          isNext = false;
-        }
-      }
-      if (isNext) {
-        await sql`
-        INSERT INTO bill_record
-        (member_id, amount, bill_type,ticket_id, user_id,count)
-        VALUES
-        (${memberId}, ${param.amount * 100}, ${param.consumptionType},${param.ticket_id}, ${userId}, ${param.consumptionNumber})
-        `;
-      }
-    });
-    // return data.rows[0];
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to recharge.');
-  }
-  revalidatePath('/dashboard/orders');//清除缓存，重新验证，获取数据
-  redirect('/dashboard/orders'); //重定向
-}
+
 //创建耗材 material
 const MaterialFormSchema = z.object({
   id: z.string(),

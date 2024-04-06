@@ -6,8 +6,14 @@ export const authConfig = {
     },
     callbacks: {
         async session({session, token, user}) {
-            session.user.id = token.sub;
-            return session;
+            let data={
+                ...session,
+                user:{
+                    id:token.sub
+                }
+            }
+            // session.user.id = token.sub;
+            return data;
         },
         //验证请求是否有权通过
         authorized({ auth, request: { nextUrl } }) {

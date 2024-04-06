@@ -35,9 +35,9 @@ export default async function CustomersTable({
                 <th scope="col" className="px-3 py-5 font-medium">
                   时间
                 </th>
-                <th scope="col" className="px-3 py-5 font-medium">
+                {/* <th scope="col" className="px-3 py-5 font-medium">
                   记录人
-                </th>
+                </th> */}
                 <th scope="col" className="px-3 py-5 font-medium">
                   消费操作
                 </th>
@@ -67,18 +67,20 @@ export default async function CustomersTable({
                   <td className="whitespace-nowrap px-3 py-3">
                     {invoice.phone}
                   </td>
-                  <td className="whitespace-nowrap px-3 py-3">
-                    {/* {invoice.create_time} */}
+                  {/* <td className="whitespace-nowrap px-3 py-3">
                     {formatDateToLocal(invoice.create_time)}
-                  </td>
+                  </td> */}
 
-                  <td className="whitespace-nowrap px-3 py-3">
+                  {/* <td className="whitespace-nowrap px-3 py-3">
                     小红
-                    {/* <InvoiceStatus status={invoice.status} /> */}
-                  </td>
+                  </td> */}
                   <td className="whitespace-nowrap px-3 py-3">
                     {formatCurrency(invoice.amount)}
                     {/* <InvoiceStatus status={invoice.status} /> */}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {/* {invoice.create_time} */}
+                    {formatDateToLocal(invoice.create_time)}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {/* {formatCurrency(invoice.amount)} */}
@@ -94,9 +96,13 @@ export default async function CustomersTable({
                     >充值</div> */}
                     {/* <CustomerRecharge memberAmountRecharge={(amount:number)=>rechargeFun(Number(invoice.id),amount)} customerId={invoice.id} /> */}
                     <CustomerRecharge customerId={invoice.id} />
-                    <div
-                      className="text-blue-600 cursor-pointer underline hover:text-blue-500"
-                    >消费历史</div>
+
+                     <Link
+                      href={`/dashboard/orders?query=${invoice.name}`}
+                      className="text-blue-600 underline hover:text-blue-500 cursor-pointer mb-1"
+                    >
+                      消费历史
+                    </Link>
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-center gap-3">

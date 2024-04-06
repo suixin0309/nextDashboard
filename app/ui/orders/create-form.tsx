@@ -11,11 +11,10 @@ import {
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
-import { updateInvoice } from '@/app/lib/actions'
-import { useFormState } from 'react-dom';
-import { useState, useCallback } from 'react';
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
+// import { useFormState } from 'react-dom';
+import { useState, useCallback ,useEffect} from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from "next-auth/react"
 export default function EditInvoiceForm({
   customer,
   projects,
@@ -23,6 +22,10 @@ export default function EditInvoiceForm({
   customer: Member;
   projects: Ticket[];
 }) {
+  const {data} =useSession();
+  const [user, setUser] = useState(data?.user)
+  const [redirectUrl, setRedirectUrl] = useState(null);
+  const router = useRouter();
   const initialState = { message: null, error: {} }
   // const updateInvoiceWithId = updateInvoice.bind(null, customer.id);
   // const [state, dispatch] = useFormState(updateInvoiceWithId, initialState);
@@ -56,26 +59,29 @@ export default function EditInvoiceForm({
     })
     setProjectLst([...newProjects])
   }
-  const actionFun =async () => {
-    let data = {
-      member_id: Number(customer.id),
-      user_id: 1,
-      projectList
-    }
+  const actionFun =async (events: any) => {
+    events.preventDefault();
     try {
+      let dataa = {
+        member_id: Number(customer.id),
+        createId: user?.id,
+        projectList
+      }
       const response = await fetch('/api/submitOrders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ data }),
+        body: JSON.stringify({ data:dataa }),
       });
-      console.log(response)
-      console.log("response1232242")
+      // await response.json();
+      const data = await response.json();
+      if (data.redirectTo) {
+        console.log(data)
+        setRedirectUrl(data.redirectTo);
+      }
       if (response.ok) {
-        //刷新会员列表
-        revalidatePath('/dashboard/orders');//清除缓存，重新验证，获取数据
-        redirect('/dashboard/orders'); //重定向
+        router.push('/dashboard/customers');
       } else {
         console.error('Failed to submit data');
       }
@@ -83,8 +89,19 @@ export default function EditInvoiceForm({
       console.error('Error submitting data', error);
     }
   }
+  // useEffect(() => {
+  //   if (redirectUrl) {
+  //     router.push(redirectUrl);
+  //   }
+  // }, [redirectUrl]);
+  if (redirectUrl) {
+    console.log(12321312)
+    // router.push(redirectUrl);
+    return null; // 返回 null 避免组件继续渲染
+  }
+
   return (
-    <form>
+    <form action={actionFun}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6 mt-6 grid grid-cols-1 gap-6 md:grid-cols-1 lg:grid-cols-2">
         {/* Customer Name */}
         <div className="mb-4">
@@ -224,6 +241,7 @@ export default function EditInvoiceForm({
                   <input
                     name='consumptionNumber'
                     type='number'
+                    min={1}
                     onChange={(e) => item.consumptionNumber=Number(e.target.value)}
                     defaultValue={item.consumptionNumber}
                     className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 text-sm outline-2 placeholder:text-gray-500"

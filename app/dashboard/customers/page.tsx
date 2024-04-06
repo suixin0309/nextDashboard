@@ -21,6 +21,7 @@ export default async function Page({
   // 从session里获取user员工的id
   const session = await auth();
   const user = session?.user?.id;
+  // console.log(user)
   const totalPages=await fetchMembersPages(query);
 
   return (
